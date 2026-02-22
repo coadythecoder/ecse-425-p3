@@ -9,7 +9,7 @@ architecture behavior of cache_tb is
 
 component cache is
 generic(
-    ram_size : INTEGER := 32768;
+    ram_size : integer := 32768;
 );
 port(
     clock : in std_logic;
@@ -33,19 +33,19 @@ port(
 end component;
 
 component memory is 
-GENERIC(
-    ram_size : INTEGER := 32768;
+generic(
+    ram_size : integer := 32768;
     mem_delay : time := 10 ns;
     clock_period : time := 1 ns
 );
-PORT (
-    clock: IN STD_LOGIC;
-    writedata: IN STD_LOGIC_VECTOR (7 DOWNTO 0);
-    address: IN INTEGER RANGE 0 TO ram_size-1;
-    memwrite: IN STD_LOGIC;
-    memread: IN STD_LOGIC;
-    readdata: OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
-    waitrequest: OUT STD_LOGIC
+port (
+    clock: in std_logic;
+    writedata: in std_logic_vector (7 downto 0);
+    address: in integer range 0 to ram_size-1;
+    memwrite: in std_logic;
+    memread: in std_logic;
+    readdata: out std_logic_vector (7 downto 0);
+    waitrequest: out std_logic
 );
 end component;
 	
@@ -92,7 +92,7 @@ port map(
     m_waitrequest => m_waitrequest
 );
 
-MEM : memory
+mem : memory
 port map (
     clock => clk,
     writedata => m_writedata,

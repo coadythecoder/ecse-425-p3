@@ -1,47 +1,47 @@
-LIBRARY ieee;
-USE ieee.std_logic_1164.all;
-USE ieee.numeric_std.all;
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
-ENTITY memory_tb IS
-END memory_tb;
+entity memory_tb is
+end memory_tb;
 
-ARCHITECTURE behaviour OF memory_tb IS
+architecture behaviour of memory_tb IS
 
 --Declare the component that you are testing:
-    COMPONENT memory IS
-        GENERIC(
-            ram_size : INTEGER := 32768;
+    component memory is
+        generic(
+            ram_size : integer := 32768;
             mem_delay : time := 10 ns;
             clock_period : time := 1 ns
         );
-        PORT (
-            clock: IN STD_LOGIC;
-            writedata: IN STD_LOGIC_VECTOR (7 DOWNTO 0);
-            address: IN INTEGER RANGE 0 TO ram_size-1;
-            memwrite: IN STD_LOGIC := '0';
-            memread: IN STD_LOGIC := '0';
-            readdata: OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
-            waitrequest: OUT STD_LOGIC
+        port (
+            clock: in std_logic;
+            writedata: in std_logic_vector (7 downto 0);
+            address: in integer range 0 to ram_size-1;
+            memwrite: in std_logic_vector := '0';
+            memread: in std_logic := '0';
+            readdata: out std_logic_vector (7 downto 0);
+            waitrequest: out std_logic
         );
-    END COMPONENT;
+    end component;
 
     --all the input signals with initial values
     signal clk : std_logic := '0';
     constant clk_period : time := 1 ns;
     signal writedata: std_logic_vector(7 downto 0);
-    signal address: INTEGER RANGE 0 TO 32768-1;
-    signal memwrite: STD_LOGIC := '0';
-    signal memread: STD_LOGIC := '0';
-    signal readdata: STD_LOGIC_VECTOR (7 DOWNTO 0);
-    signal waitrequest: STD_LOGIC;
+    signal address: integer range 0 to 32768-1;
+    signal memwrite: std_logic := '0';
+    signal memread: std_logic := '0';
+    signal readdata: std_logic_vector (7 downto 0);
+    signal waitrequest: std_logic;
 
-BEGIN
+begin
 
     --dut => Device Under Test
-    dut: memory GENERIC MAP(
+    dut: memory generic map(
             ram_size => 15
                 )
-                PORT MAP(
+                port map(
                     clk,
                     writedata,
                     address,
@@ -52,7 +52,7 @@ BEGIN
                 );
 
     clk_process : process
-    BEGIN
+    begin
         clk <= '0';
         wait for clk_period/2;
         clk <= '1';
@@ -60,7 +60,7 @@ BEGIN
     end process;
 
     test_process : process
-    BEGIN
+    begin
         wait for clk_period;
         address <= 14; 
         writedata <= X"12";
@@ -80,7 +80,7 @@ BEGIN
         memread <= '0';
         wait;
 
-    END PROCESS;
+    end process;
 
  
-END;
+end;
