@@ -28,11 +28,30 @@ port(
 end cache;
 
 architecture arch of cache is
-
--- declare signals here
-
+-- constants
+	constant WORD_SIZE : integer := 32;
+	constant WORDS_IN_BLOCK : integer := 4;
+	constant BLOCKS_IN_CACHE : integer := 32;
+	constant VALID_BIT_SIZE : integer := 1;
+	constant DIRTY_BIT_SIZE : integer := 1;
+	constant TAG_SIZE : integer := 8; -- 8 == 15 (lower bits considered) - 2 (byte offset) - 5 (block offset)
+-- internal types
+	type cache_frame is std_logic_Vector(DIRTY_BIT_SIZE + VALID_BIT_SIZE + TAG_SIZE + WORD_SIZE - 1 downto 0);
+	type cache_block is array(WORDS_IN_BLOCK - 1 downto 0) of cache_frame;
+	type cache_array is array(BLOCKS_IN_CACHE - 1 downto 0) of cache_block;
+-- signals
+	signal my_cache : cache_array;
 begin
+	cache_process : process(clock)
+	begin
+		-- if rising_edge
 
+
+		-- handle read
+
+		-- handle write
+
+	end process;
 -- make circuits here
 
 end arch;
