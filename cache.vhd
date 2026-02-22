@@ -63,6 +63,16 @@ architecture arch of cache is
 	signal write_data_reg : std_logic_vector(WORD_SIZE - 1 downto 0);
 begin
 -- make circuits here
+	memory_inst : entity work.memory
+        port map (
+            clock => clock,
+			write_data => m_write_data,
+			address => m_addr,
+			memwrite => m_write,
+			memread => m_read,
+			readdata => m_readdata,
+			waitrequest => m_waitrequest
+        );
 	cache_process : process(clock, reset)
 	-- variables
 	variable block_index : integer := 0;
@@ -70,6 +80,7 @@ begin
 		-- insert some logic to initialize all the cache blocks in the my_cache as well as 
 		if reset='1' then
 			state <= IDLE;
+			-- intialize the empty cache, all flags set to zero too
 			for i in 0 to BLOCKS_IN_CACHE-1 loop
 				my_cache(i).valid <= '0';
 				my_cache(i).dirty <= '0';
@@ -80,7 +91,7 @@ begin
 			case state is
 				when IDLE =>
 					if wait_request_reg = '0' then
-						wair_request_reg <= '1';
+						wait_request_reg <= '1';
 					elsif s_read = '1' then
 						state <= READ_INIT;
 						address_reg <= s_addr;

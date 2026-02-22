@@ -116,6 +116,8 @@ test_process : process
 begin
 
 -- put your tests here
+
+-- please begin with a reset signal so that the initialization occurs
 	
 end process;
 	
