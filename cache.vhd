@@ -35,22 +35,45 @@ architecture arch of cache is
 	constant VALID_BIT_SIZE : integer := 1;
 	constant DIRTY_BIT_SIZE : integer := 1;
 	constant TAG_SIZE : integer := 8; -- 8 == 15 (lower bits considered) - 2 (byte offset) - 5 (block offset)
+
 -- internal types
 	type cache_frame is std_logic_Vector(DIRTY_BIT_SIZE + VALID_BIT_SIZE + TAG_SIZE + WORD_SIZE - 1 downto 0);
 	type cache_block is array(WORDS_IN_BLOCK - 1 downto 0) of cache_frame;
 	type cache_array is array(BLOCKS_IN_CACHE - 1 downto 0) of cache_block;
+	
+	type state_type is (
+		IDLE, 
+		READ_INIT, 
+		WRITE_INIT, 
+		READ_WAIT, 
+		WRITE_WAIT,
+		SUCCESS);
+	
 -- signals
 	signal my_cache : cache_array;
+	signal wait_request_reg : std_logic := '1';
+	signal state : state_type;
 begin
-	cache_process : process(clock)
+	cache_process : process(clock, reset)
 	begin
-		-- if rising_edge
-
-
-		-- handle read
-
-		-- handle write
-
+		if reset='1' then
+			state <= IDLE;
+		elsif rising_edge(clock) then
+			case state is
+				when IDLE =>
+					-- 
+				when READ_INIT => 
+					-- 
+				when READ_WAIT => 
+					--
+				when WRITE_INIT =>
+					--
+				when WRITE_WAIT => 
+					-- 
+				when SUCCESS =>
+					--
+			end case;	
+		end if;
 	end process;
 -- make circuits here
 
