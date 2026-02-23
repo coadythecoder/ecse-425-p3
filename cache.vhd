@@ -38,8 +38,14 @@ architecture arch of cache is
 	-- address (31:0, byte addressable) can split in the following way using the lower 15 bits
 	-- 1:0 ignored since memory accesses are assumed to be word-addressable (multiple of four so bits 1:0 always 0)
 	-- 3:2 offset within the block i.e. which of the four words in the block is the one we want
+	constant OFFSET_START : integer := 3;
+	constant OFFSET_END : integer := 2;
 	-- 8:4 block address, 8:4 is 5 total bits corresponding to the 2^5=32 total cache blocks
+	constant BLOCK_ADDR_START : integer := 8;
+	constant BLOCK_ADDR_END : integer := 4;
 	-- 14:9 (6 bits total) is the remaining spcace and is thus the tag
+	constant TAG_START : integer := 14;
+	constant TAG_END : integer := 9;
 
 -- internal types
 	type word_array is array(WORDS_IN_BLOCK - 1 downto 0) of std_logic_vector(WORD_SIZE - 1 downto 0);
@@ -61,36 +67,46 @@ architecture arch of cache is
 	
 -- internal signals
 	signal my_cache : cache_array;
-	signal wait_request_reg : std_logic := '1';
-	signal state : state_type;
-	signal address_reg : std_logic_vector(WORD_SIZE - 1 downto 0);
+	signal wait_request_reg : std_logic; -- register for keeping track of cache's s_waitrequest
+	signal state : state_type; -- current state
+	-- register for holding onto the address we care about even if the input changes during execution
+	signal address_reg : std_logic_vector(WORD_SIZE - 1 downto 0); 
+	-- register for holding onto data to be written
 	signal write_data_reg : std_logic_vector(WORD_SIZE - 1 downto 0);
-	signal cur_block_index : integer := -1;
+	-- signal to keep track of current block index to avoid having to recompute every time (keeps things a little tidy)
+	signal cur_block_index : integer;
+	-- signal to keep track of byte index (relative to base address) loaded from memory
+	signal cur_byte_index: integer;
 begin
 	cache_process : process(clock, reset)
 	-- variable declaration
 	variable temp_tag : std_logic_vector(TAG_SIZE - 1 downto 0);
 	variable temp_block : cache_block;
+	variable temp_offset : integer;
+	variable temp_word_index : integer;
+	variable t_rel_byte_i : integer; -- temporary relative byte index
 	begin
-		-- insert some logic to initialize all the cache blocks in the my_cache as well as 
 		if reset='1' then
+			-- intialize everything to default values
 			state <= IDLE;
-			-- intialize the empty cache, all flags set to zero too
 			for i in 0 to BLOCKS_IN_CACHE-1 loop
 				my_cache(i).valid <= '0';
 				my_cache(i).dirty <= '0';
 				my_cache(i).tag <= (others => '0');
-				my_cache(i).data <= (others => '0');
+				for i in 0 to WORDS_IN_BLOCK - 1 loop
+					current_block.data(i) := (others => '0');
+				end loop;
 			end loop;
 			wait_request_reg <= '1';
-			cached_checked := false;
+			address_reg <= (others => '0');
+			write_data_reg <= (others => '0');
+			cur_byte_index <= 0;
 		elsif rising_edge(clock) then
 			case state is
 				when IDLE =>
 					if wait_request_reg = '0' then
 						-- since it should only be zero for one clock cycle
 						wait_request_reg <= '1';
-					
 					-- if read or write is 1 then get things ready and transition to appropriate state
 					elsif s_read = '1' or s_write = '1' then
 						address_reg <= s_addr;
@@ -103,20 +119,40 @@ begin
 						end if;
 					end if;
 				when READ_INIT => 
-					temp_tag := --;
-					temp_block := --;
-					if temp_block.tag = temp_tag and  temp_block.valid = '1' then -- hit
-						s_readdata <= temp.data;
-						wait_request_reg <= '0';
+					temp_tag := address_reg(TAG_START downto TAG_END);
+					temp_block := my_cache(cur_block_index);
+					if temp_block.valid = '1' and temp_block.tag = temp_tag then
+						-- hit
+						temp_offset := to_integer(unsigned(address_reg(OFFSET_START downto OFFSET_END)));
+						s_readdata <= temp_block.data(temp_offset);
+						wait_request_reg <= '0'; -- this will get reset to 1 at the next clock cycle, see IDLE state logic
 					else -- miss
+						-- m_addr is an integer not a vector for some reason so gotta convert
+						m_addr <= to_integer(unsigned(address_reg(TAG_START downto 0)));
+						m_read <= '1';
 						state <= READ_WAIT;
 					end if;
 				when WRITE_INIT =>
-					if my_cache(temp_block_index).tag = temp_tag and (my_cache)then -- hit
-						my_cache(temp_block_index).data 
-					end if;
+					--
 				when READ_WAIT => 
-					-- wait for memory to assert 0 on m_waitrequest, then put it into corresponding cache block
+					if m_waitrequest = '0' then
+						temp_word_index := cur_byte_index / 4; -- 4 bytes in a word
+						t_rel_byte_i := cur_byte_index mod 4;
+						my_cache(cur_block_index).data(temp_word_index)(((t_rel_byte_i+1)*8)-1 downto t_rel_byte_i*8) <= m_readdata; 
+						
+						if cur_byte_index = 15 then
+							cur_byte_index = 0;
+							wait_request_reg <= '0';
+							temp_offset := to_integer(unsigned(address_reg(OFFSET_START downto OFFSET_END)));
+							my_cache(cur_block_index).tag <= address_reg(TAG_START downto TAG_END);
+							my_cache(cur_block_index).valid <= '1';
+							my_cache(cur_block_index).dirty <= '0';
+							s_readata = my_cache(cur_block_index).data(temp_offset);
+							state <= IDLE;
+						end if;
+						cur_byte_index <= cur_byte_index + 1;
+					end if;
+					-- if the waitrequest is still 1, check again next cycle
 				when WRITE_WAIT => 
 					-- wait for memory to assert 0 on m_waitrequest, put into corresponding cache block, modify in cache
 			end case;	
