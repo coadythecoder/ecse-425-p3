@@ -127,13 +127,21 @@ begin
 						s_readdata <= temp_block.data(temp_offset);
 						wait_request_reg <= '0'; -- this will get reset to 1 at the next clock cycle, see IDLE state logic
 					else -- miss
+						-- handle write back
+						
 						-- m_addr is an integer not a vector for some reason so gotta convert
 						m_addr <= to_integer(unsigned(address_reg(TAG_START downto 0)));
 						m_read <= '1';
 						state <= READ_WAIT;
 					end if;
 				when WRITE_INIT =>
-					--
+					temp_tag := address_reg(TAG_START downto TAG_END);
+					temp_block := my_cache(cur_block_index);
+					if temp_block.valid = '1' then
+
+					else
+						-- handle write-back
+					end if;
 				when READ_WAIT => 
 					if m_waitrequest = '0' then
 						temp_word_index := cur_byte_index / 4; -- 4 bytes in a word
