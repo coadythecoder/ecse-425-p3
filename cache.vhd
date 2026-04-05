@@ -30,6 +30,7 @@ end cache;
 architecture arch of cache is
 
 	-- CONSTANTS go here: fixed compile-time values, private to this architecture. ex: constant WORD_SIZE : integer := 32;
+	constant BYTE_SIZE : integer := 8;
 	constant WORD_SIZE : integer := 32;
 	constant WORDS_PER_BLOCK : integer := 4;
 	constant NUM_BLOCKS : integer := 32;
@@ -65,18 +66,23 @@ architecture arch of cache is
 	signal tag_reg : std_logic_vector(TAG_SIZE-1 downto 0); -- register to store tag portion of address
 	signal block_offset_reg : integer; -- register to store block index of address
 	signal word_offset_reg : integer; -- register to store word offset of address
-	signal write_data_reg : std_logic_vector(31 downto 0);
-
-	signal is_write_request : boolean;
-	signal is_read_request : boolean;
-
-	signal target_block : cache_block;
+	signal write_data_reg : std_logic_vector(31 downto 0); -- register to store data to be written
+	signal is_write_request : boolean; -- write flag
+	signal is_read_request : boolean; -- read flag
+	signal target_block : cache_block; -- to hold the value of the target block
+	signal byte_counter : integer; -- for use in WRITEBACK and MEM_READ
+	signal m_write_reg : std_logic; -- to drive m_write
+	signal m_read_reg : std_logic; -- to drive m_read
 
 begin
 
 	-- PROCESSES go here: clocked (sequential) or combinational logic blocks. ex: process(clock, reset) begin ... end process;
 	process(clock, reset)
 		-- VARIABLES go here, inside the process, before the begin keyword
+		variable word_index : integer;
+		variable byte_start_index : integer;
+		variable byte_end_index : integer;
+		variable base_addr : integer;
 	begin
 		if reset = '1' then
 			s_waitrequest <= '1';
@@ -108,6 +114,10 @@ begin
 			for i in 0 to WORDS_PER_BLOCK-1 loop
 				target_block.data(i) <= (others => '0');
 			end loop;
+
+			byte_counter <= 0;
+
+			word_index := 0;
 
 		elsif rising_edge(clock) then
 			case state is
@@ -142,7 +152,24 @@ begin
 						state <= WRITEBACK;
 					end if;
 				when WRITEBACK =>
-					-- writeback
+					if m_write_reg = '0' then
+						base_addr := to_integer(unsigned(addr_reg(MEM_ADDR_SIZE-1 downto 2)));
+						word_index := byte_counter / (WORD_SIZE/BYTE_SIZE);
+						-- endianness does not matter as long as we're being consistent, and thus i am choosing little-endian
+						byte_start_index := (byte_counter+1)*8 - 1;
+						byte_end_index := (byte_counter)*8;
+
+						m_addr <= base_addr + byte_counter;
+						m_writedata <= target_block.data(word_index)(byte_start_index downto byte_end_index);
+						m_write_reg <= '1';
+					elsif m_waitrequest = '0' then
+						m_write_reg <= '0';
+						if byte_counter = 15 then
+							byte_counter <= 0;
+							state <= MEM_READ;
+						else
+							byte_counter <= byte_counter + 1;
+					end if;
 				when MEM_READ =>
 					-- mem_read
 				when COMPLETE =>
@@ -152,7 +179,7 @@ begin
 	end process;
 
 	-- CONCURRENT SIGNAL ASSIGNMENTS go here: permanent connections that always drive a signal, outside any process. ex: m_read <= m_read_reg;
-
-
+	m_write <= m_write_reg;
+	m_read <= m_read_reg;
 
 end arch;
