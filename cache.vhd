@@ -70,12 +70,13 @@ architecture arch of cache is
 	signal is_write_request : boolean;
 	signal is_read_request : boolean;
 
+	signal target_block : cache_block;
+
 begin
 
 	-- PROCESSES go here: clocked (sequential) or combinational logic blocks. ex: process(clock, reset) begin ... end process;
 	process(clock, reset)
 		-- VARIABLES go here, inside the process, before the begin keyword
-
 	begin
 		if reset = '1' then
 			s_waitrequest <= '1';
@@ -100,6 +101,13 @@ begin
 			write_data_reg <= (others => '0');
 			is_write_request <= false;
 			is_read_request <= false;
+			
+			target_block.valid <= '0';
+			target_block.dirty <= '0';
+			target_block.tag <= (others => '0');
+			for i in 0 to WORDS_PER_BLOCK-1 loop
+				target_block.data(i) <= (others => '0');
+			end loop;
 
 		elsif rising_edge(clock) then
 			case state is
@@ -121,8 +129,18 @@ begin
 						s_waitrequest <= '0'; -- then set high in CHECK. does this actually follow the standard?
 					end if;
 				when CHECK =>
-					-- check
-
+					s_waitrequest <= '1';
+					target_block <= my_cache(block_offset_reg);
+					if (target_block.valid = '1') and (target_block.tag = tag_reg) then
+						if is_write_request then
+							target_block.data(word_offset_reg) <= write_data_reg;
+						else -- is read_request
+							s_readdata <= target_block.data(word_offset_reg);
+						end if;
+						state <= COMPLETE;
+					else
+						state <= WRITEBACK;
+					end if;
 				when WRITEBACK =>
 					-- writeback
 				when MEM_READ =>
