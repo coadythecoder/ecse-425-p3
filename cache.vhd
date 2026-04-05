@@ -122,6 +122,7 @@ begin
 		elsif rising_edge(clock) then
 			case state is
 				when IDLE =>
+					s_waitrequest <= '1';
 					if (s_read = '1') or (s_write = '1') then
 						addr_reg <= s_addr(MEM_ADDR_SIZE-1 downto 0);
 						tag_reg <= s_addr(TAG_START downto TAG_END);
@@ -200,7 +201,14 @@ begin
 					end if;
 
 				when COMPLETE =>
-					-- complete
+					if is_read_request then
+						s_readdata <= target_block.data(word_offset_reg);
+					else 
+						my_cache(block_offset_reg).data(word_offset_reg) <= s_writedata;
+						my_cache(block_offset_reg).dirty <= '1';
+					end if;
+					s_waitrequest <= '0';
+					state <= IDLE;
 			end case;
 		end if;
 	end process;
