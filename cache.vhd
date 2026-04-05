@@ -4,7 +4,7 @@ use ieee.numeric_std.all;
 
 entity cache is
 generic(
-	ram_size : INTEGER := 32768
+	ram_size : INTEGER := 32768;
 );
 port(
 	clock : in std_logic;
@@ -28,256 +28,47 @@ port(
 end cache;
 
 architecture arch of cache is
--- constants
-	constant WORD_SIZE : integer := 32;
-	constant WORDS_IN_BLOCK : integer := 4;
-	constant BLOCKS_IN_CACHE : integer := 32;
-	constant VALID_BIT_SIZE : integer := 1;
-	constant DIRTY_BIT_SIZE : integer := 1;
-	constant TAG_SIZE : integer := 6; 
-	-- address (31:0, byte addressable) can split in the following way using the lower 15 bits
-	-- 1:0 ignored since memory accesses are assumed to be word-addressable (multiple of four so bits 1:0 always 0)
-	-- 3:2 offset within the block i.e. which of the four words in the block is the one we want
-	constant OFFSET_START : integer := 3;
-	constant OFFSET_END : integer := 2;
-	-- 8:4 block address, 8:4 is 5 total bits corresponding to the 2^5=32 total cache blocks
-	constant BLOCK_ADDR_START : integer := 8;
-	constant BLOCK_ADDR_END : integer := 4;
-	-- 14:9 (6 bits total) is the remaining spcace and is thus the tag
-	constant TAG_START : integer := 14;
-	constant TAG_END : integer := 9;
 
--- internal types
-	type word_array is array(WORDS_IN_BLOCK - 1 downto 0) of std_logic_vector(WORD_SIZE - 1 downto 0);
-	type cache_block is record 
+	-- CONSTANTS go here: fixed compile-time values, private to this architecture. ex: constant WORD_SIZE : integer := 32;
+	constant WORD_SIZE : integer := 32;
+	constant WORDS_PER_BLOCK : integer := 4;
+	constant NUM_BLOCKS : integer := 32;
+
+	-- TYPES go here: custom array, record, or enum types used by signals below. ex: type state_type is (IDLE, CHECK, WRITEBACK);
+	type word_array is array(WORDS_PER_BLOCK-1 downto 0) of std_logic_vector(WORD_SIZE-1 downto 0);
+	type cache_block is record
 		valid : std_logic;
 		dirty : std_logic;
-		tag : std_logic_vector(TAG_SIZE - 1 downto 0);
-		data : word_array;
+		tag   : std_logic_vector(TAG_SIZE-1 downto 0);
+		data  : word_array;
 	end record;
-	type cache_array is array(BLOCKS_IN_CACHE - 1 downto 0) of cache_block;
+	type cache_array is array(NUM_BLOCKS-1 downto 0) of cache_block;
+	type state_type is (IDLE, CHECK, WRITEBACK, MEM_READ, COMPLETE);
 	
-	type state_type is (
-		IDLE, 
-		READ_INIT, 
-		WRITE_INIT, 
-		WRITEBACK,
-		READ_WAIT, 
-		WRITE_WAIT,
-		READ_DONE,
-		WRITE_DONE
-	);
-	
--- internal signals
+	-- INTERNAL SIGNALS go here: wires that connect things inside the architecture, including FSM state and shadow registers for outputs. ex: signal state : state_type;  signal m_read_reg : std_logic;
 	signal my_cache : cache_array;
-	signal wait_request_reg : std_logic; -- register for keeping track of cache's s_waitrequest
-	signal state : state_type; -- current state
-	-- register for holding onto the address we care about even if the input changes during execution
-	signal address_reg : std_logic_vector(WORD_SIZE - 1 downto 0); 
-	-- register for holding onto data to be written
-	signal write_data_reg : std_logic_vector(WORD_SIZE - 1 downto 0);
-	-- signal to keep track of current block index to avoid having to recompute every time (keeps things a little tidy)
-	signal cur_block_index : integer;
-	-- signal to keep track of byte index (relative to base address) loaded from memory
-	signal cur_byte_index: integer;
-	-- signal to track if the original operation was a write (needed after writeback)
-	signal is_write_op : std_logic;
-	-- base address in memory for writeback (old tag + block index + 0000)
-	signal wb_base_addr : integer range 0 to ram_size-1;
-	-- base address in memory for allocating new block (new tag + block index + 0000)
-	signal alloc_base_addr : integer range 0 to ram_size-1;
+	signal state : state_type;
+
 begin
-	cache_process : process(clock, reset)
-	-- variable declaration
-	variable temp_tag : std_logic_vector(TAG_SIZE - 1 downto 0);
-	variable temp_block : cache_block;
-	variable temp_offset : integer;
-	variable temp_word_index : integer;
-	variable t_rel_byte_i : integer; -- temporary relative byte index
+
+	-- PROCESSES go here: clocked (sequential) or combinational logic blocks. ex: process(clock, reset) begin ... end process;
+	process(clock, reset)
+		-- VARIABLES go here, inside the process, before the begin keyword
+
 	begin
-		if reset='1' then
-			-- intialize everything to default values
-			state <= IDLE;
-			for i in 0 to BLOCKS_IN_CACHE-1 loop
-				my_cache(i).valid <= '0';
-				my_cache(i).dirty <= '0';
-				my_cache(i).tag <= (others => '0');
-				for j in 0 to WORDS_IN_BLOCK - 1 loop
-					my_cache(i).data(j) <= (others => '0');
-				end loop;
-			end loop;
-			wait_request_reg <= '1';
-			m_read <= '0';
-			m_write <= '0';
-			m_addr <= 0;
-			m_writedata <= (others => '0');
-			s_readdata <= (others => '0');
-			address_reg <= (others => '0');
-			write_data_reg <= (others => '0');
-			cur_block_index <= 0;
-			cur_byte_index <= 0;
-			is_write_op <= '0';
-			wb_base_addr <= 0;
-			alloc_base_addr <= 0;
+		if reset = '1' then
+			-- handle reset
 		elsif rising_edge(clock) then
 			case state is
 				when IDLE =>
-					if wait_request_reg = '0' then
-						-- since it should only be zero for one clock cycle
-						wait_request_reg <= '1';
-					-- if read or write is 1 then get things ready and transition to appropriate state
-					elsif s_read = '1' or s_write = '1' then
-						address_reg <= s_addr;
-						cur_block_index <= to_integer(unsigned(s_addr(BLOCK_ADDR_START downto BLOCK_ADDR_END)));
-						if s_read = '1' then
-							state <= READ_INIT;
-						elsif s_write = '1' then
-							state <= WRITE_INIT;
-							write_data_reg <= s_writedata;
-						end if;
-					end if;
-				when READ_INIT => 
-					temp_tag := address_reg(TAG_START downto TAG_END);
-					temp_block := my_cache(cur_block_index);
-					if temp_block.valid = '1' and temp_block.tag = temp_tag then
-						-- read hit: return the requested word
-						temp_offset := to_integer(unsigned(address_reg(OFFSET_START downto OFFSET_END)));
-						s_readdata <= temp_block.data(temp_offset);
-						wait_request_reg <= '0'; -- this will get reset to 1 at the next clock cycle, see IDLE state logic
-						state <= IDLE;
-					else -- read miss
-						-- compute base address for the new block to load
-						alloc_base_addr <= to_integer(unsigned(
-							address_reg(TAG_START downto BLOCK_ADDR_END) & "0000"));
-						cur_byte_index <= 0;
-						is_write_op <= '0';
-						if temp_block.valid = '1' and temp_block.dirty = '1' then
-							-- dirty block: must write back old block first
-							wb_base_addr <= to_integer(unsigned(
-								temp_block.tag
-								& address_reg(BLOCK_ADDR_START downto BLOCK_ADDR_END)
-								& "0000"));
-							state <= WRITEBACK;
-						else
-							-- clean miss or invalid: load block directly
-							state <= READ_WAIT;
-						end if;
-					end if;
-				when WRITE_INIT =>
-					temp_tag := address_reg(TAG_START downto TAG_END);
-					temp_block := my_cache(cur_block_index);
-					if temp_block.valid = '1' and temp_block.tag = temp_tag then
-						-- write hit: update the word in cache and mark dirty
-						temp_offset := to_integer(unsigned(address_reg(OFFSET_START downto OFFSET_END)));
-						my_cache(cur_block_index).data(temp_offset) <= write_data_reg;
-						my_cache(cur_block_index).dirty <= '1';
-						wait_request_reg <= '0';
-						state <= IDLE;
-					else -- write miss
-						-- compute base address for the new block to load
-						alloc_base_addr <= to_integer(unsigned(
-							address_reg(TAG_START downto BLOCK_ADDR_END) & "0000"));
-						cur_byte_index <= 0;
-						is_write_op <= '1';
-						if temp_block.valid = '1' and temp_block.dirty = '1' then
-							-- dirty block: must write back old block first
-							wb_base_addr <= to_integer(unsigned(
-								temp_block.tag
-								& address_reg(BLOCK_ADDR_START downto BLOCK_ADDR_END)
-								& "0000"));
-							state <= WRITEBACK;
-						else
-							-- clean miss or invalid: load block directly
-							state <= WRITE_WAIT;
-						end if;
-					end if;
+				when CHECK =>
 				when WRITEBACK =>
-					-- write the dirty evicted block back to memory, one byte at a time
-					-- toggle m_write for each byte: assert to start, wait for ack, deassert
-					temp_word_index := cur_byte_index / 4;
-					t_rel_byte_i := cur_byte_index mod 4;
-					if m_write = '0' then
-						-- initiate byte write to memory
-						m_addr <= wb_base_addr + cur_byte_index;
-						m_writedata <= my_cache(cur_block_index).data(temp_word_index)
-							(((t_rel_byte_i+1)*8)-1 downto t_rel_byte_i*8);
-						m_write <= '1';
-					elsif m_waitrequest = '0' then
-						-- memory acknowledged the write
-						m_write <= '0';
-						if cur_byte_index = 15 then
-							-- writeback complete, now load the new block
-							cur_byte_index <= 0;
-							if is_write_op = '1' then
-								state <= WRITE_WAIT;
-							else
-								state <= READ_WAIT;
-							end if;
-						else
-							cur_byte_index <= cur_byte_index + 1;
-						end if;
-					end if;
-				when READ_WAIT => 
-					-- load new block from memory byte by byte (for read miss)
-					-- toggle m_read for each byte: assert to start, wait for ack, capture data
-					if m_read = '0' then
-						-- initiate byte read from memory
-						m_addr <= alloc_base_addr + cur_byte_index;
-						m_read <= '1';
-					elsif m_waitrequest = '0' then
-						-- memory returned data: store byte into cache block
-						temp_word_index := cur_byte_index / 4; -- 4 bytes in a word
-						t_rel_byte_i := cur_byte_index mod 4;
-						my_cache(cur_block_index).data(temp_word_index)(((t_rel_byte_i+1)*8)-1 downto t_rel_byte_i*8) <= m_readdata;
-						m_read <= '0';
-						if cur_byte_index = 15 then
-							-- block fully loaded: update tag and valid
-							my_cache(cur_block_index).tag <= address_reg(TAG_START downto TAG_END);
-							my_cache(cur_block_index).valid <= '1';
-							state <= READ_DONE;
-						else
-							cur_byte_index <= cur_byte_index + 1;
-						end if;
-					end if;
-				when WRITE_WAIT => 
-					-- load new block from memory byte by byte (for write miss)
-					-- same as READ_WAIT but transitions to WRITE_DONE
-					if m_read = '0' then
-						m_addr <= alloc_base_addr + cur_byte_index;
-						m_read <= '1';
-					elsif m_waitrequest = '0' then
-						temp_word_index := cur_byte_index / 4;
-						t_rel_byte_i := cur_byte_index mod 4;
-						my_cache(cur_block_index).data(temp_word_index)(((t_rel_byte_i+1)*8)-1 downto t_rel_byte_i*8) <= m_readdata;
-						m_read <= '0';
-						if cur_byte_index = 15 then
-							my_cache(cur_block_index).tag <= address_reg(TAG_START downto TAG_END);
-							my_cache(cur_block_index).valid <= '1';
-							state <= WRITE_DONE;
-						else
-							cur_byte_index <= cur_byte_index + 1;
-						end if;
-					end if;
-				when READ_DONE =>
-					-- finalize read after block allocation (separate state needed because
-					-- the last byte written in READ_WAIT only takes effect at this clock edge)
-					temp_offset := to_integer(unsigned(address_reg(OFFSET_START downto OFFSET_END)));
-					s_readdata <= my_cache(cur_block_index).data(temp_offset);
-					my_cache(cur_block_index).dirty <= '0';
-					wait_request_reg <= '0';
-					state <= IDLE;
-				when WRITE_DONE =>
-					-- finalize write after block allocation so write the processor's data
-					-- into the now-loaded cache block and mark dirty
-					temp_offset := to_integer(unsigned(address_reg(OFFSET_START downto OFFSET_END)));
-					my_cache(cur_block_index).data(temp_offset) <= write_data_reg;
-					my_cache(cur_block_index).dirty <= '1';
-					wait_request_reg <= '0';
-					state <= IDLE;
-			end case;	
+				when MEM_READ =>
+				when COMPLETE =>
+			end case;
 		end if;
 	end process;
 
-	s_waitrequest <= wait_request_reg;
+	-- CONCURRENT SIGNAL ASSIGNMENTS go here: permanent connections that always drive a signal, outside any process. ex: m_read <= m_read_reg;
 
 end arch;
