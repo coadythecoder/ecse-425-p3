@@ -4,7 +4,7 @@ use ieee.numeric_std.all;
 
 entity cache is
 generic(
-	ram_size : INTEGER := 32768;
+	ram_size : INTEGER := 32768
 );
 port(
 	clock : in std_logic;
@@ -33,6 +33,14 @@ architecture arch of cache is
 	constant WORD_SIZE : integer := 32;
 	constant WORDS_PER_BLOCK : integer := 4;
 	constant NUM_BLOCKS : integer := 32;
+	constant TAG_SIZE : integer := 6;
+	constant MEM_ADDR_SIZE : integer := 15;
+	-- address (31:0, byte addressable) can be split in the following way using the lower 15 bits
+	-- 1->0 ignored since memory accesses are assumed to be word-addressable (multiple of four bits, so bits 1:0 always 0)
+	-- 4 words per block, so word offset is 2 bits, corresponding to bits to 3->2
+	-- 32 blocks, so block offset is 5 bits, corresponding to bits 8->4
+	-- 14->9 are the remaining bits, and thus the tag size is 6 bits (14-9+1=6)
+	
 
 	-- TYPES go here: custom array, record, or enum types used by signals below. ex: type state_type is (IDLE, CHECK, WRITEBACK);
 	type word_array is array(WORDS_PER_BLOCK-1 downto 0) of std_logic_vector(WORD_SIZE-1 downto 0);
@@ -46,8 +54,12 @@ architecture arch of cache is
 	type state_type is (IDLE, CHECK, WRITEBACK, MEM_READ, COMPLETE);
 	
 	-- INTERNAL SIGNALS go here: wires that connect things inside the architecture, including FSM state and shadow registers for outputs. ex: signal state : state_type;  signal m_read_reg : std_logic;
-	signal my_cache : cache_array;
-	signal state : state_type;
+	signal my_cache : cache_array; -- instantiated cache
+	signal state : state_type; -- state variable
+	signal addr_reg : std_logic_vector(MEM_ADDR_SIZE-1 downto 0); -- register to store 15 lower bits of given address
+	signal tag_reg : std_logic_vector(TAG_SIZE-1 downto 0); -- register to store tag portion of address
+	signal block_offset_reg : integer; -- register to store block index of address
+	signal word_offset_reg : integer; -- register to store word offset of address
 
 begin
 
@@ -57,18 +69,45 @@ begin
 
 	begin
 		if reset = '1' then
-			-- handle reset
+			state <= IDLE;
+
+			-- initialize cache
+			for i in 0 to NUM_BLOCKS-1 loop
+				my_cache(i).valid <= '0';
+				my_chache(i).dirty <= '0';
+				my_cache(i).tag <= (others => '0');
+				for j in 0 to WORDS_PER_BLOCK-1 loop
+					my_cache(i).data(j) <= (others => '0');
+				end loop;
+			end loop;
+
+			-- reset other internal signals to 0
+
 		elsif rising_edge(clock) then
 			case state is
 				when IDLE =>
+					if s_read = '1' then
+						-- latch read registers
+						state <= CHECK;
+					elsif s_write = '1' then
+						-- latch write registers
+						state <= CHECK;
+					-- else do nothing, wait for s_write or s_read
 				when CHECK =>
+					-- check
+
 				when WRITEBACK =>
+					-- writeback
 				when MEM_READ =>
+					-- mem_read
 				when COMPLETE =>
+					-- complete
 			end case;
 		end if;
 	end process;
 
 	-- CONCURRENT SIGNAL ASSIGNMENTS go here: permanent connections that always drive a signal, outside any process. ex: m_read <= m_read_reg;
+
+
 
 end arch;
