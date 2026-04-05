@@ -169,9 +169,36 @@ begin
 							state <= MEM_READ;
 						else
 							byte_counter <= byte_counter + 1;
+						end if;
 					end if;
 				when MEM_READ =>
-					-- mem_read
+					if m_read_reg = '0' then
+						base_addr := to_integer(unsigned(addr_reg(MEM_ADDR_SIZE-1 downto 2)));
+
+						m_addr <= base_addr + byte_counter;
+						m_read_reg <= '1';
+					elsif m_waitrequest = '0' then
+						word_index := byte_counter / (WORD_SIZE/BYTE_SIZE);
+						-- endianness does not matter as long as we're being consistent, and thus i am choosing little-endian
+						byte_start_index := (byte_counter+1)*8 - 1;
+						byte_end_index := (byte_counter)*8;
+
+						target_block.data(word_index)(byte_start_index downto byte_end_index) <= m_readdata;
+
+						m_read_reg <= '0';
+						if byte_counter = 15 then
+							target_block.valid <= '1';
+							target_block.dirty <= '0';
+							target_block.tag <= tag_reg;
+							my_cache(block_offset_reg) <= target_block;
+
+							byte_counter <= 0;
+							state <= COMPLETE;
+						else
+							byte_counter <= byte_counter + 1;
+						end if;
+					end if;
+
 				when COMPLETE =>
 					-- complete
 			end case;
