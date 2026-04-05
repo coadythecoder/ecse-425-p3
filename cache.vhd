@@ -38,9 +38,14 @@ architecture arch of cache is
 	-- address (31:0, byte addressable) can be split in the following way using the lower 15 bits
 	-- 1->0 ignored since memory accesses are assumed to be word-addressable (multiple of four bits, so bits 1:0 always 0)
 	-- 4 words per block, so word offset is 2 bits, corresponding to bits to 3->2
+	constant WORD_OFFSET_START : integer := 3;
+	constant WORD_OFFSET_END : integer := 2;
 	-- 32 blocks, so block offset is 5 bits, corresponding to bits 8->4
+	constant BLOCK_OFFSET_START : integer := 8;
+	constant BLOCK_OFFSET_END : integer := 4;
 	-- 14->9 are the remaining bits, and thus the tag size is 6 bits (14-9+1=6)
-	
+	constant TAG_START : integer := MEM_ADDR_SIZE - 1;
+	constant TAG_END : integer := 9;
 
 	-- TYPES go here: custom array, record, or enum types used by signals below. ex: type state_type is (IDLE, CHECK, WRITEBACK);
 	type word_array is array(WORDS_PER_BLOCK-1 downto 0) of std_logic_vector(WORD_SIZE-1 downto 0);
@@ -60,6 +65,10 @@ architecture arch of cache is
 	signal tag_reg : std_logic_vector(TAG_SIZE-1 downto 0); -- register to store tag portion of address
 	signal block_offset_reg : integer; -- register to store block index of address
 	signal word_offset_reg : integer; -- register to store word offset of address
+	signal write_data_reg : std_logic_vector(31 downto 0);
+
+	signal is_write_request : boolean;
+	signal is_read_request : boolean;
 
 begin
 
@@ -69,12 +78,14 @@ begin
 
 	begin
 		if reset = '1' then
+			s_waitrequest <= '1';
+			
 			state <= IDLE;
 
 			-- initialize cache
 			for i in 0 to NUM_BLOCKS-1 loop
 				my_cache(i).valid <= '0';
-				my_chache(i).dirty <= '0';
+				my_cache(i).dirty <= '0';
 				my_cache(i).tag <= (others => '0');
 				for j in 0 to WORDS_PER_BLOCK-1 loop
 					my_cache(i).data(j) <= (others => '0');
@@ -82,17 +93,33 @@ begin
 			end loop;
 
 			-- reset other internal signals to 0
+			addr_reg <= (others => '0');
+			tag_reg <= (others => '0');
+			block_offset_reg <= 0;
+			word_offset_reg <= 0;
+			write_data_reg <= (others => '0');
+			is_write_request <= false;
+			is_read_request <= false;
 
 		elsif rising_edge(clock) then
 			case state is
 				when IDLE =>
-					if s_read = '1' then
-						-- latch read registers
+					if (s_read = '1') or (s_write = '1') then
+						addr_reg <= s_addr(MEM_ADDR_SIZE-1 downto 0);
+						tag_reg <= s_addr(TAG_START downto TAG_END);
+						block_offset_reg <= to_integer(unsigned(s_addr(BLOCK_OFFSET_START downto BLOCK_OFFSET_END)));
+						word_offset_reg <= to_integer(unsigned(s_addr(WORD_OFFSET_START downto WORD_OFFSET_END)));
+						
+						if s_write = '1' then
+							write_data_reg <= s_writedata;
+							is_write_request <= true;
+						else
+							is_read_request <= true;
+						end if;
+						
 						state <= CHECK;
-					elsif s_write = '1' then
-						-- latch write registers
-						state <= CHECK;
-					-- else do nothing, wait for s_write or s_read
+						s_waitrequest <= '0'; -- then set high in CHECK. does this actually follow the standard?
+					end if;
 				when CHECK =>
 					-- check
 
