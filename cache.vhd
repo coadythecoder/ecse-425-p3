@@ -32,6 +32,7 @@ architecture arch of cache is
 	-- CONSTANTS go here: fixed compile-time values, private to this architecture. ex: constant WORD_SIZE : integer := 32;
 	constant BYTE_SIZE : integer := 8;
 	constant WORD_SIZE : integer := 32;
+	constant BYTES_PER_WORD : integer := WORD_SIZE / BYTE_SIZE;
 	constant WORDS_PER_BLOCK : integer := 4;
 	constant NUM_BLOCKS : integer := 32;
 	constant TAG_SIZE : integer := 6;
@@ -83,6 +84,8 @@ begin
 		variable byte_start_index : integer;
 		variable byte_end_index : integer;
 		variable base_addr : integer;
+		variable temp_word : std_logic_vector(WORD_SIZE-1 downto 0);
+		variable mod_byte_counter : integer;
 	begin
 		if reset = '1' then
 			s_waitrequest <= '1';
@@ -119,6 +122,9 @@ begin
 
 			word_index := 0;
 
+			m_write_reg <= '0';
+			m_read_reg <= '0';
+
 		elsif rising_edge(clock) then
 			case state is
 				when IDLE =>
@@ -137,10 +143,8 @@ begin
 						end if;
 						
 						state <= CHECK;
-						s_waitrequest <= '0'; -- then set high in CHECK. does this actually follow the standard?
 					end if;
 				when CHECK =>
-					s_waitrequest <= '1';
 					target_block <= my_cache(block_offset_reg);
 					if target_block.valid = '1' then
 						if target_block.tag = tag_reg then
@@ -161,10 +165,11 @@ begin
 				when WRITEBACK =>
 					if m_write_reg = '0' then
 						base_addr := to_integer(unsigned(addr_reg(MEM_ADDR_SIZE-1 downto 2)));
-						word_index := byte_counter / (WORD_SIZE/BYTE_SIZE);
+						word_index := byte_counter / BYTES_PER_WORD;
 						-- endianness does not matter as long as we're being consistent, and thus i am choosing little-endian
-						byte_start_index := (byte_counter+1)*8 - 1;
-						byte_end_index := (byte_counter)*8;
+						mod_byte_counter := byte_counter mod BYTES_PER_WORD;
+						byte_start_index := (mod_byte_counter+1)*8 - 1;
+						byte_end_index := (mod_byte_counter)*8;
 
 						m_addr <= base_addr + byte_counter;
 						m_writedata <= target_block.data(word_index)(byte_start_index downto byte_end_index);
@@ -185,12 +190,15 @@ begin
 						m_addr <= base_addr + byte_counter;
 						m_read_reg <= '1';
 					elsif m_waitrequest = '0' then
-						word_index := byte_counter / (WORD_SIZE/BYTE_SIZE);
+						word_index := byte_counter / BYTES_PER_WORD;
 						-- endianness does not matter as long as we're being consistent, and thus i am choosing little-endian
-						byte_start_index := (byte_counter+1)*8 - 1;
-						byte_end_index := (byte_counter)*8;
+						mod_byte_counter := byte_counter mod BYTES_PER_WORD;
+						byte_start_index := (mod_byte_counter+1)*8 - 1;
+						byte_end_index := (mod_byte_counter)*8;
 
-						target_block.data(word_index)(byte_start_index downto byte_end_index) <= m_readdata;
+						temp_word := target_block.data(word_index);
+						temp_word(byte_start_index downto byte_end_index) := m_readdata;
+						target_block.data(word_index) <= temp_word;
 
 						m_read_reg <= '0';
 						if byte_counter = 15 then
