@@ -29,7 +29,7 @@ end cache;
 
 architecture arch of cache is
 
-	-- CONSTANTS go here: fixed compile-time values, private to this architecture. ex: constant WORD_SIZE : integer := 32;
+	-- CONSTANTS
 	constant BYTE_SIZE : integer := 8;
 	constant WORD_SIZE : integer := 32;
 	constant BYTES_PER_WORD : integer := WORD_SIZE / BYTE_SIZE;
@@ -49,7 +49,7 @@ architecture arch of cache is
 	constant TAG_START : integer := MEM_ADDR_SIZE - 1;
 	constant TAG_END : integer := 9;
 
-	-- TYPES go here: custom array, record, or enum types used by signals below. ex: type state_type is (IDLE, CHECK, WRITEBACK);
+	-- TYPES
 	type word_array is array(WORDS_PER_BLOCK-1 downto 0) of std_logic_vector(WORD_SIZE-1 downto 0);
 	type cache_block is record
 		valid : std_logic;
@@ -60,7 +60,7 @@ architecture arch of cache is
 	type cache_array is array(NUM_BLOCKS-1 downto 0) of cache_block;
 	type state_type is (IDLE, CHECK, WRITEBACK, MEM_READ, COMPLETE);
 	
-	-- INTERNAL SIGNALS go here: wires that connect things inside the architecture, including FSM state and shadow registers for outputs. ex: signal state : state_type;  signal m_read_reg : std_logic;
+	-- INTERNAL SIGNALS
 	signal my_cache : cache_array; -- instantiated cache
 	signal state : state_type; -- state variable
 	signal addr_reg : std_logic_vector(MEM_ADDR_SIZE-1 downto 0); -- register to store 15 lower bits of given address
@@ -77,9 +77,9 @@ architecture arch of cache is
 
 begin
 
-	-- PROCESSES go here: clocked (sequential) or combinational logic blocks. ex: process(clock, reset) begin ... end process;
+	-- PROCESSES
 	process(clock, reset)
-		-- VARIABLES go here, inside the process, before the begin keyword
+		-- VARIABLES
 		variable word_index : integer;
 		variable byte_start_index : integer;
 		variable byte_end_index : integer;
@@ -229,7 +229,6 @@ begin
 		end if;
 	end process;
 
-	-- CONCURRENT SIGNAL ASSIGNMENTS go here: permanent connections that always drive a signal, outside any process. ex: m_read <= m_read_reg;
 	m_write <= m_write_reg;
 	m_read <= m_read_reg;
 
