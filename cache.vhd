@@ -142,15 +142,21 @@ begin
 				when CHECK =>
 					s_waitrequest <= '1';
 					target_block <= my_cache(block_offset_reg);
-					if (target_block.valid = '1') and (target_block.tag = tag_reg) then
-						if is_write_request then
-							target_block.data(word_offset_reg) <= write_data_reg;
-						else -- is read_request
-							s_readdata <= target_block.data(word_offset_reg);
+					if target_block.valid = '1' then
+						if target_block.tag = tag_reg then
+							if is_write_request then
+								target_block.data(word_offset_reg) <= write_data_reg;
+							else -- is read_request
+								s_readdata <= target_block.data(word_offset_reg);
+							end if;
+							state <= COMPLETE;
+						elsif target_block.dirty = '1' then
+							state <= WRITEBACK;
+						else
+							state <= MEM_READ;
 						end if;
-						state <= COMPLETE;
 					else
-						state <= WRITEBACK;
+						state <= MEM_READ;
 					end if;
 				when WRITEBACK =>
 					if m_write_reg = '0' then
