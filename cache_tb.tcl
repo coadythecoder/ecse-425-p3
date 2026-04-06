@@ -38,6 +38,7 @@ add wave -radix binary   /cache_tb/s_write
 add wave -radix hex      /cache_tb/s_readdata
 add wave -radix hex      /cache_tb/s_writedata
 add wave -radix binary   /cache_tb/s_waitrequest
+add wave -radix ascii    /cache_tb/dut/state
 
 add wave -divider "Master (Memory-side)"
 add wave -radix unsigned /cache_tb/m_addr

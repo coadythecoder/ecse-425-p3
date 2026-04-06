@@ -126,8 +126,17 @@ begin
     assert (s_waitrequest = '1' and m_waitrequest = '1') report "Error with initialization, at least one waitrequest != 1" severity error;
     report "Initialization successful";
 
+    report "Test #1: Read Invalid Block"; --all blocks are initialized invalid so any read should satisfy this case
+    s_read <= '1';
+    s_addr <= std_logic_vector(to_unsigned(1, 32));
+    wait until s_waitrequest = '0' for 1000ns;
+    assert s_waitrequest = '0' report "TIMEOUT: s_waitrequest never deasserted" severity error;
+    report "Read data: " & integer'image(to_integer(unsigned(s_readdata)));
+
+
 
     report "Testbench complete";
+    std.env.stop;
     wait;
 
 end process;
