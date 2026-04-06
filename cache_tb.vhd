@@ -66,7 +66,8 @@ signal m_read : std_logic;
 signal m_readdata : std_logic_vector (7 downto 0);
 signal m_write : std_logic;
 signal m_writedata : std_logic_vector (7 downto 0);
-signal m_waitrequest : std_logic; 
+signal m_waitrequest : std_logic;
+signal test_num : integer;
 
 begin
 
@@ -115,6 +116,7 @@ end process;
 test_process : process
 begin
     report "Initializing cache";
+    test_num <= 0;
     s_read  <= '0';
     s_write <= '0';
     s_addr  <= (others => '0');
@@ -126,14 +128,146 @@ begin
     assert (s_waitrequest = '1' and m_waitrequest = '1') report "Error with initialization, at least one waitrequest != 1" severity error;
     report "Initialization successful";
 
-    report "Test #1: Read Invalid Block"; --all blocks are initialized invalid so any read should satisfy this case
+    report "Test #1: Read + Invalid"; -- all blocks should be invalid initially
+    test_num <= 1;
+    wait until rising_edge(clk);  
     s_read <= '1';
-    s_addr <= std_logic_vector(to_unsigned(1, 32));
-    wait until s_waitrequest = '0' for 1000ns;
-    assert s_waitrequest = '0' report "TIMEOUT: s_waitrequest never deasserted" severity error;
-    report "Read data: " & integer'image(to_integer(unsigned(s_readdata)));
+    s_addr <= std_logic_vector(to_unsigned(0, 32)); 
+    wait until falling_edge(s_waitrequest) for 200 ns;
+    assert s_waitrequest = '0' report "TIMEOUT: read never completed" severity error;
+    report "Read data (unsigned): " & integer'image(to_integer(unsigned(s_readdata)));
+    wait until rising_edge(clk);
+    s_read <= '0';
+    wait for clk_period;
 
 
+    report "Test #2: Read + Valid + Not Dirty + Equal Tag ";
+    test_num <= 2;
+    wait until rising_edge(clk);
+    s_read <= '1';
+    s_addr <= std_logic_vector(to_unsigned(0, 32));
+    wait until falling_edge(s_waitrequest) for 200 ns;
+    assert s_waitrequest = '0' report "TIMEOUT: read never completed" severity error;
+    report "Read data (unsigned): " & integer'image(to_integer(unsigned(s_readdata)));
+    wait until rising_edge(clk);
+    s_read <= '0';
+    wait for clk_period;
+
+
+    report "Test #3: Read + Valid + Not Dirty + Not Equal Tag"; -- tag starts at bit 9 so add 2^9 to address
+    test_num <= 3;
+    wait until rising_edge(clk);
+    s_read <= '1';
+    s_addr <= std_logic_vector(to_unsigned(0 + 512, 32));
+    wait until falling_edge(s_waitrequest) for 200 ns;
+    assert s_waitrequest = '0' report "TIMEOUT: read never completed" severity error;
+    report "Read data (unsigned): " & integer'image(to_integer(unsigned(s_readdata))); -- will keep the same value since new address is a multiple of 256 (see memory.vhd initialization)
+    wait until rising_edge(clk);
+    s_read <= '0';
+    wait for clk_period;
+
+
+    report "Test #4: Write + Invalid";
+    test_num <= 4;
+    wait until rising_edge(clk);
+    s_write <= '1';
+    s_addr <= std_logic_vector(to_unsigned(4, 32));
+    s_writedata <= x"DEADBEEF";
+    wait until falling_edge(s_waitrequest) for 200 ns;
+    assert s_waitrequest = '0' report "TIMEOUT: read never completed" severity error;
+    wait until rising_edge(clk);
+    s_write <= '0';
+    wait for clk_period;
+
+
+    report "Test #5: Write Valid + Not Dirty + Equal Tag";
+    test_num <= 5;
+    wait until rising_edge(clk);
+    s_write <= '1';
+    s_addr <= std_logic_vector(to_unsigned(4, 32));
+    s_writedata <= x"BEEFDEAD";
+    wait until falling_edge(s_waitrequest) for 200 ns;
+    assert s_waitrequest = '0' report "TIMEOUT: read never completed" severity error;
+    wait until rising_edge(clk);
+    s_write <= '0';
+    wait for clk_period;
+
+
+    report "Test #6: Write + Valid + Not Dirty + Not Equal Tag";
+    test_num <= 6;
+    s_write <= '1';
+    s_addr <= std_logic_vector(to_unsigned(0, 32));
+    s_writedata <= x"8BADF00D";
+    wait until falling_edge(s_waitrequest) for 200 ns;
+    assert s_waitrequest = '0' report "TIMEOUT: read never completed" severity error;
+    wait until rising_edge(clk);
+    s_write <= '0';
+    wait for clk_period;
+
+
+    report "Test #7: Write + Valid + Dirty + Equal Tag";
+    test_num <= 7;
+    s_write <= '1';
+    s_addr <= std_logic_vector(to_unsigned(4, 32));
+    s_writedata <= x"C0FFEEEE";
+    wait until falling_edge(s_waitrequest) for 200 ns;
+    assert s_waitrequest = '0' report "TIMEOUT: read never completed" severity error;
+    wait until rising_edge(clk);
+    s_write <= '0';
+    wait for clk_period;
+
+
+    report "Test #8: Read + Valid + Dirty + Equal Tag";
+    test_num <= 8;
+    s_read <= '1';
+    s_addr <= std_logic_vector(to_unsigned(4, 32));
+    wait until falling_edge(s_waitrequest) for 200 ns;
+    assert s_waitrequest = '0' report "TIMEOUT: read never completed" severity error;
+    report "Read data (unsigned): " & integer'image(to_integer(unsigned(s_readdata))); -- will keep the same value since new address is a multiple of 256 (see memory.vhd initialization)
+    wait until rising_edge(clk);
+    s_read <= '0';
+    wait for clk_period;
+
+
+    report "Test #9: Read + Valid + Dirty + Not Equal Tag";
+    test_num <= 9;
+    s_read <= '1';
+    s_addr <= std_logic_vector(to_unsigned(4 + 512, 32));
+    wait until falling_edge(s_waitrequest) for 200 ns;
+    assert s_waitrequest = '0' report "TIMEOUT: read never completed" severity error;
+    report "Read data (unsigned): " & integer'image(to_integer(unsigned(s_readdata))); -- will keep the same value since new address is a multiple of 256 (see memory.vhd initialization)
+    wait until rising_edge(clk);
+    s_read <= '0';
+    wait for clk_period;
+
+
+    report "Test 10 set-up (creating dirty block)";
+    test_num <= 10;
+    s_write <= '1';
+    s_addr <= std_logic_vector(to_unsigned(4 + 512, 32));
+    s_writedata <= x"ABADBABE";
+    wait until falling_edge(s_waitrequest) for 200 ns;
+    assert s_waitrequest = '0' report "TIMEOUT: read never completed" severity error;
+    wait until rising_edge(clk);
+    s_write <= '0';
+    wait for clk_period;
+
+    report "Test #10: Write + Valid + Dirty + Equal Tag";
+    test_num <= 11;
+    s_write <= '1';
+    s_addr <= std_logic_vector(to_unsigned(4 + 512, 32));
+    s_writedata <= x"FEEDFACE";
+    wait until falling_edge(s_waitrequest) for 200 ns;
+    assert s_waitrequest = '0' report "TIMEOUT: read never completed" severity error;
+    wait until rising_edge(clk);
+    s_write <= '0';
+    wait for clk_period;
+
+
+
+    wait until rising_edge(clk);
+    s_write <= '0';
+    wait for clk_period;
 
     report "Testbench complete";
     std.env.stop;

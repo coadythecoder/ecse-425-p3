@@ -27,9 +27,10 @@ vsim -lib "$SRC_DIR/$LIB_NAME" cache_tb
 # ─────────────────────────────────────────────
 # Waveform setup
 # ─────────────────────────────────────────────
-add wave -divider "Clock / Reset"
+add wave -divider "Clock / Reset / Test"
 add wave -radix binary   /cache_tb/clk
 add wave -radix binary   /cache_tb/reset
+add wave -radix unsigned /cache_tb/test_num
 
 add wave -divider "Slave (CPU-side)"
 add wave -radix hex      /cache_tb/s_addr
@@ -39,6 +40,7 @@ add wave -radix hex      /cache_tb/s_readdata
 add wave -radix hex      /cache_tb/s_writedata
 add wave -radix binary   /cache_tb/s_waitrequest
 add wave -radix ascii    /cache_tb/dut/state
+add wave -radix unsigned /cache_tb/dut/byte_counter
 
 add wave -divider "Master (Memory-side)"
 add wave -radix unsigned /cache_tb/m_addr

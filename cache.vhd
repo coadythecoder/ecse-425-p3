@@ -165,7 +165,7 @@ begin
 					end if;
 				when WRITEBACK =>
 					if m_write_reg = '0' then
-						base_addr := to_integer(unsigned(addr_reg(MEM_ADDR_SIZE-1 downto 2)));
+						base_addr := to_integer(unsigned(addr_reg(MEM_ADDR_SIZE-1 downto 2)))*16;
 						word_index := byte_counter / BYTES_PER_WORD;
 						-- endianness does not matter as long as we're being consistent, and thus i am choosing little-endian
 						mod_byte_counter := byte_counter mod BYTES_PER_WORD;
@@ -186,7 +186,7 @@ begin
 					end if;
 				when MEM_READ =>
 					if m_read_reg = '0' then
-						base_addr := to_integer(unsigned(addr_reg(MEM_ADDR_SIZE-1 downto 2)));
+						base_addr := to_integer(unsigned(addr_reg(MEM_ADDR_SIZE-1 downto 2)))*16;
 
 						m_addr <= base_addr + byte_counter;
 						m_read_reg <= '1';
