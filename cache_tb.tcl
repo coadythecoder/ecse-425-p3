@@ -2,7 +2,7 @@
 # ─────────────────────────────────────────────
 # Setup
 # ─────────────────────────────────────────────
-quietly set SRC_DIR "P:/425p3/ecse-425-p3"
+quietly set SRC_DIR [file dirname [info script]]
 quietly set LIB_NAME "work"
 
 # Clean up any previous simulation
