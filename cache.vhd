@@ -153,6 +153,7 @@ begin
 							else -- is read_request
 								s_readdata <= target_block.data(word_offset_reg);
 							end if;
+							s_waitrequest <= '0';
 							state <= COMPLETE;
 						elsif target_block.dirty = '1' then
 							state <= WRITEBACK;
@@ -208,20 +209,21 @@ begin
 							my_cache(block_offset_reg) <= target_block;
 
 							byte_counter <= 0;
+							if is_read_request then
+								s_readdata <= target_block.data(word_offset_reg);
+							else 
+								my_cache(block_offset_reg).data(word_offset_reg) <= s_writedata;
+								my_cache(block_offset_reg).dirty <= '1';
+							end if;
 							state <= COMPLETE;
+							s_waitrequest <= '0';
 						else
 							byte_counter <= byte_counter + 1;
 						end if;
 					end if;
 
 				when COMPLETE =>
-					if is_read_request then
-						s_readdata <= target_block.data(word_offset_reg);
-					else 
-						my_cache(block_offset_reg).data(word_offset_reg) <= s_writedata;
-						my_cache(block_offset_reg).dirty <= '1';
-					end if;
-					s_waitrequest <= '0';
+					s_waitrequest <= '1';
 					state <= IDLE;
 			end case;
 		end if;
