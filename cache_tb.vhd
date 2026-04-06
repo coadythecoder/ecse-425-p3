@@ -9,7 +9,7 @@ architecture behavior of cache_tb is
 
 component cache is
 generic(
-    ram_size : INTEGER := 32768;
+    ram_size : INTEGER := 32768
 );
 port(
     clock : in std_logic;
@@ -114,9 +114,22 @@ end process;
 
 test_process : process
 begin
+    report "Initializing cache";
+    s_read  <= '0';
+    s_write <= '0';
+    s_addr  <= (others => '0');
+    s_writedata <= (others => '0');
+    reset <= '1';
+    wait for clk_period;
+    reset <= '0';
+    wait for clk_period;
+    assert (s_waitrequest = '1' and m_waitrequest = '1') report "Error with initialization, at least one waitrequest != 1" severity error;
+    report "Initialization successful";
 
--- put your tests here
-	
+
+    report "Testbench complete";
+    wait;
+
 end process;
 	
 end;
