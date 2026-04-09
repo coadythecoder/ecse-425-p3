@@ -150,6 +150,7 @@ begin
 						if target_block.tag = tag_reg then
 							if is_write_request then
 								target_block.data(word_offset_reg) <= write_data_reg;
+								target_block.dirty <= '1';
 							else -- is read_request
 								s_readdata <= target_block.data(word_offset_reg);
 							end if;
