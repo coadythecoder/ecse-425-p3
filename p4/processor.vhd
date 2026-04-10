@@ -10,6 +10,19 @@ entity processor is
 end processor;
 
 architecture arch of processor is
+    component memory is 
 begin
-    -- stuff
+    cpu_process process(clock, reset)
+    begin
+        if reset = '1' then
+        
+        
+        elsif rising_edge(clock) then
+
+        
+        elsif falling_edge(clock) then
+        
+        
+        end if;
+    end process;
 end arch;
