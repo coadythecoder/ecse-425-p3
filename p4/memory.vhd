@@ -6,22 +6,22 @@ use ieee.numeric_std.all;
 entity memory is
 	generic(
 		ram_size : integer := 32768;
-		mem_delay : time := 10 ns;
+		mem_delay : time := 1 ns;
 		clock_period : time := 1 ns
 	);
 	port (
 		clock: IN std_logic;
-		writedata: IN std_logic_vector (7 downto 0);
+		writedata: IN std_logic_vector (31 downto 0);
 		address: in integer range 0 to ram_size-1;
 		memwrite: in std_logic;
 		memread: in std_logic;
-		readdata: out std_logic_vector (7 downto 0);
+		readdata: out std_logic_vector (31 downto 0);
 		waitrequest: out std_logic
 	);
 end memory;
 
 architecture rtl of memory is
-	type mem is array(ram_size-1 downto 0) of std_logic_vector(7 downto 0);
+	type mem is array(ram_size-1 downto 0) of std_logic_vector(31 downto 0);
 	signal ram_block: mem;
 	signal read_address_reg: integer range 0 to ram_size-1;
 	signal write_waitreq_reg: std_logic := '1';
@@ -33,7 +33,7 @@ begin
 		--This is a cheap trick to initialize the SRAM in simulation
 		if(now < 1 ps)then
 			for i in 0 to ram_size-1 loop
-				ram_block(i) <= std_logic_vector(to_unsigned(i mod 256,8));
+				ram_block(i) <= std_logic_vector(to_unsigned(0, 8));
 			end loop;
 		end if;
 
