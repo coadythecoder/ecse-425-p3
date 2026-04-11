@@ -16,8 +16,7 @@ entity rf is
 end rf;
 
 architecture arch of rf is 
-    type reg is std_logic_vector(31 downto 0);
-    type reg_file is array(31 downto 0) of reg;
+    type reg_file is array(31 downto 0) of std_logic_vector(31 downto 0);
 
     signal my_rf : reg_file;
 begin
@@ -32,14 +31,21 @@ begin
 
 
     read_process: process(read_addr1, read_addr2)
+        variable index1 : integer;
+        variable index2 : integer;
     begin
-        
+        index1 := to_integer(unsigned(read_addr1));
+        index2 := to_integer(unsigned(read_addr2));
+
+        read_data1 <= my_rf(index1);
+        read_data2 <= my_rf(index2);
     end process;
 
     write_process: process(clk)
+        variable write_index : integer;
     begin
         if rising_edge(clk) then
-
+            my_rf(write_index) <= write_data;
         end if;
     end process;
 
