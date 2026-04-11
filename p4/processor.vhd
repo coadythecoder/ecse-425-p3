@@ -49,10 +49,20 @@ architecture arch of processor is
     signal cond : std_logic; -- signal to decide whether or not to branch
     signal lmd : std_logic_vector(31 downto 0); -- register to store data loaded from memory
     signal alu_out : std_logic_vector(31 downto 0); -- register to store output of alu
+    
     signal mux_a : std_logic_vector(31 downto 0); -- mux for input 1 of alu
     signal mux_b : std_logic_vector(31 downto 0); -- mux for input 2 of alu
     signal mux_pc : std_logic_vector(31 downto 0); -- mux for updating pc value
-    signal mux_write : std_logic_vector(31 downto 0); -- mux for writeback 
+    signal mux_write : std_logic_vector(31 downto 0); -- mux for writeback
+    
+    signal mem_read : std_logic; -- selector to read from data memory
+    signal mem_write : std_logic; -- selector to write to data memory
+    signal reg_write : std_logic; -- selector to write to registers
+    
+    signal mux_a_select : std_logic; -- selector for mux_a
+    signal mux_b_select : std_logic;  -- selector for mux_b
+    signal mux_pc_select : std_logic; -- selector for mux_pc
+    signal mux_write_select : std_logic; -- selector for mux_write
 
     data_mem : memory port map(
         clock => clock,
