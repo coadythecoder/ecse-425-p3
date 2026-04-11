@@ -27,7 +27,7 @@ architecture arch of processor is
         );
     end component;
     
-    component register_file is 
+    component rf is 
         port(
             clock : in std_logic;
             reset : in std_logic;
@@ -74,7 +74,7 @@ architecture arch of processor is
         waitrequest => _
     );
 
-    reg_file : register_file port map(
+    reg_file : rf port map(
         clock => clock;
         reset => reset;
         read_addr1 => ir(19 downto 15);
