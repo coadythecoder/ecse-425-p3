@@ -55,33 +55,33 @@ architecture arch of processor is
     signal mux_write : std_logic_vector(31 downto 0); -- mux for writeback 
 
     data_mem : memory port map(
-        clock => clock;
-        writedata => B;
-        address => alu_out;
-        memwrite => _;
-        memread => _;
-        readdata => lmd;
-        waitrequest => _
+        clock => clock,
+        writedata => B,
+        address => alu_out,
+        memwrite => open,
+        memread => open,
+        readdata => lmd,
+        waitrequest => open
     );
 
     instr_mem : memory port map(
-        clock => clock;
-        writedata => (others => '0');
-        address => pc;
-        memwrite => _;
-        memread => _;
-        readdata => ir;
-        waitrequest => _
+        clock => clock,
+        writedata => (others => '0'),
+        address => pc,
+        memwrite => open,
+        memread => open,
+        readdata => ir,
+        waitrequest => open
     );
 
     reg_file : rf port map(
-        clock => clock;
-        reset => reset;
-        read_addr1 => ir(19 downto 15);
-        read_addr2 => ir(24 downto 20);
-        write_addr => ir(11 downto 7);
-        write_data => mux_write;
-        read_data1 => A;
+        clock => clock,
+        reset => reset,
+        read_addr1 => ir(19 downto 15),
+        read_addr2 => ir(24 downto 20),
+        write_addr => ir(11 downto 7),
+        write_data => mux_write,
+        read_data1 => A,
         read_data2 => B
     );
 
