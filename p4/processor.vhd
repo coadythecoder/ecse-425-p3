@@ -11,11 +11,75 @@ end processor;
 
 architecture arch of processor is
     component memory is 
+        generic(
+            ram_size : integer := 32768;
+            mem_delay : time := 1 ns;
+            clock_period : time := 1 ns
+        );
+        port (
+            clock: in std_logic;
+            writedata: in std_logic_vector(7 downto 0);
+            address: in integer range 0 to ram_size-1;
+            memwrite: in std_logic;
+            memread: in std_Logic;
+            readdata: out std_logic_vector(7 downto 0);
+            waitrequest: out std_logic
+        );
+    end component;
+    
+    component register_file is 
+        port(
+            clock : in std_logic;
+            reset : in std_logic;
+            read_addr1 : in std_logic_vector(4 downto 0);
+            read_addr2 : in std_logic_vector(4 downto 0);
+            write_addr : in std_logic_vector(4 downto 0);
+            write_data : in std_logic_vector(31 downto 0);
+            read_data1 : out std_logic_vector(31 downto 0);
+            read_data2 : out std_logic_vector(31 downto 0)
+        );
+    end component;
+
+    signal pc : integer;
+    signal read_data2_to_data_mem_write_data : std_logic_vector(31 downto 0);
+    signal alu_result_to_data_mem_addr : std_logic_vector(31 downto 0);
+
+    data_mem : memory port map(
+        clock => clock;
+        writedata => read_data2_to_data_mem_write_data;
+        address => alu_result_to_data_mem_addr;
+        memwrite => _;
+        memread => _;
+        readdata => _;
+        waitrequest => _
+    );
+
+    instr_mem : memory port map(
+        clock => clock;
+        writedata => _;
+        address => _;
+        memwrite => _;
+        memread => _;
+        readdata => _;
+        waitrequest => _
+    );
+
+    reg_file : register_file port map(
+        clock => clock;
+        reset => reset;
+        read_addr1 => _;
+        read_addr2 => _;
+        write_addr => _;
+        write_data => _;
+        read_data1 => _;
+        read_data2 => _
+    );
+
 begin
-    cpu_process process(clock, reset)
+    cpu_process: process(clock, reset)
     begin
         if reset = '1' then
-        
+            pc <= 0;
         
         elsif rising_edge(clock) then
 
