@@ -29,7 +29,6 @@ begin
         end if;
     end process;
 
-
     read_process: process(read_addr1, read_addr2)
         variable index1 : integer;
         variable index2 : integer;
