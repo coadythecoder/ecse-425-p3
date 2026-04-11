@@ -40,8 +40,8 @@ architecture arch of processor is
         );
     end component;
 
-    signal pc : integer; -- program counter
-    signal npc : integer; -- new program counter value (pc + 4)
+    signal pc : integer range 0 to 32767; -- program counter
+    signal npc : integer range 0 to 32767; -- new program counter value (pc + 4)
     signal ir : std_logic_vector(31 downto 0); -- instruction register, used to hold Mem[PC]
     signal A : std_logic_vector(31 downto 0); -- register to store read data 1
     signal B : std_logic_vector(31 downto 0); -- register to store reaad data 2
@@ -63,13 +63,19 @@ architecture arch of processor is
     signal mux_b_select : std_logic;  -- selector for mux_b
     signal mux_pc_select : std_logic; -- selector for mux_pc
     signal mux_write_select : std_logic; -- selector for mux_write
+    signal alu_out_addr : integer range 0 to 32767;
+
+begin
+    alu_out_addr <= to_integer(unsigned(alu_out(14 downto 0)));
+    mux_pc <= alu_out when cond = '1' else std_logic_vector(to_unsigned(npc, 32));
+    -- mux_write <= lmd when 
 
     data_mem : memory port map(
         clock => clock,
         writedata => B,
-        address => alu_out,
-        memwrite => open,
-        memread => open,
+        address => alu_out_addr,
+        memwrite => mem_write,
+        memread => mem_read,
         readdata => lmd,
         waitrequest => open
     );
@@ -78,8 +84,8 @@ architecture arch of processor is
         clock => clock,
         writedata => (others => '0'),
         address => pc,
-        memwrite => open,
-        memread => open,
+        memwrite => '0',
+        memread => '1',
         readdata => ir,
         waitrequest => open
     );
@@ -94,10 +100,6 @@ architecture arch of processor is
         read_data1 => A,
         read_data2 => B
     );
-
-begin
-    mux_pc <= alu_out when cond = '1' else npc;
-    -- mux_write <= lmd when 
 
 
     cpu_process: process(clock, reset)
