@@ -18,11 +18,11 @@ architecture arch of processor is
         );
         port (
             clock: in std_logic;
-            writedata: in std_logic_vector(7 downto 0);
+            writedata: in std_logic_vector(31 downto 0);
             address: in integer range 0 to ram_size-1;
             memwrite: in std_logic;
             memread: in std_Logic;
-            readdata: out std_logic_vector(7 downto 0);
+            readdata: out std_logic_vector(31 downto 0);
             waitrequest: out std_logic
         );
     end component;
@@ -56,36 +56,40 @@ architecture arch of processor is
 
     data_mem : memory port map(
         clock => clock;
-        writedata => read_data2_to_data_mem_write_data;
-        address => alu_result_to_data_mem_addr;
+        writedata => B;
+        address => alu_out;
         memwrite => _;
         memread => _;
-        readdata => _;
+        readdata => lmd;
         waitrequest => _
     );
 
     instr_mem : memory port map(
         clock => clock;
-        writedata => _;
-        address => _;
+        writedata => (others => '0');
+        address => pc;
         memwrite => _;
         memread => _;
-        readdata => _;
+        readdata => ir;
         waitrequest => _
     );
 
     reg_file : register_file port map(
         clock => clock;
         reset => reset;
-        read_addr1 => _;
-        read_addr2 => _;
-        write_addr => _;
-        write_data => _;
-        read_data1 => _;
-        read_data2 => _
+        read_addr1 => ir(19 downto 15);
+        read_addr2 => ir(24 downto 20);
+        write_addr => ir(11 downto 7);
+        write_data => mux_write;
+        read_data1 => A;
+        read_data2 => B
     );
 
 begin
+    mux_pc <= alu_out when cond = '1' else npc;
+    -- mux_write <= lmd when 
+
+
     cpu_process: process(clock, reset)
     begin
         if reset = '1' then
