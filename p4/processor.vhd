@@ -40,6 +40,15 @@ architecture arch of processor is
         );
     end component;
 
+    component alu is
+        port (
+            instruction : in std_logic_vector(31 downto 0);
+            op1 : in std_logic_vector(31 downto 0);
+            op2 : in std_logic_vector(31 downto 0);
+            result : out std_logic_vector(31 downto 0)
+        );
+    end component;
+
     signal pc : integer; -- program counter
     signal npc : integer; -- new program counter value (pc + 4)
     signal ir : std_logic_vector(31 downto 0); -- instruction register, used to hold Mem[PC]
@@ -64,6 +73,10 @@ architecture arch of processor is
     signal mux_pc_select : std_logic; -- selector for mux_pc
     signal mux_write_select : std_logic; -- selector for mux_write
 
+    type state_type is (FETCH, DECODE, EXECUTE, MEMORY, WRITEBACK);
+    signal state : state_type;
+
+begin
     data_mem : memory port map(
         clock => clock,
         writedata => B,
@@ -95,10 +108,16 @@ architecture arch of processor is
         read_data2 => B
     );
 
-    type state_type is (FETCH, DECODE, EXECUTE, MEMORY, WRITEBACK);
-    signal state : state_type;
+    my_alu : alu port map(
+        instruction => ir;
+        op1 => mux_a;
+        op2 => mux_b;
+        result => alu_out;
+    );
 
-begin
+    mux_a <= A when mux_a_select='0' else npc;
+    mux_b <= B when mux_b_select='1' else imm;
+
     cpu_process: process(clock, reset)
         variable opcode : std_logic_vector(6 downto 0);
         variable imm_raw : std_logic_vector(31 downto 0);
@@ -118,19 +137,19 @@ begin
                     imm_raw := (others => '0');
                     
                     case opcode is
-                        when opcode = "0010011" | opcode = "0000011" | opcode = "1100111"=> -- I-type
+                        when "0010011" | "0000011" | "1100111"=> -- I-type
                             imm_raw(11 downto 0) := ir(31 downto 20);
-                        when opcode = "0100011" => -- S-type
+                        when "0100011" => -- S-type
                             imm_raw(11 downto 5) := ir(31 downto 25);
                             imm_raw(4 downto 0) := ir(11 downto 7);
-                        when opcode = "1100011" => -- B-type
+                        when "1100011" => -- B-type
                             imm_raw(12) := ir(31);
                             imm_raw(10 downto 5) := ir(30 downto 25);
                             imm_raw(4 downto 1) := ir(11 downto 8);
                             imm_raw(11) := ir(7);
-                        when opcode = "0110111" | opcode = "0010111" => -- U-type
+                        when "0110111" | "0010111" => -- U-type
                             imm_raw(31 downto 12) := ir(31 downto 12);
-                        when opcode = "1101111" => -- J-type
+                        when "1101111" => -- J-type
                             imm_raw(20) := ir(31);
                             imm_raw(10 downto 1) := ir(30 downto 21);
                             imm_raw(11) := ir(20);
@@ -141,7 +160,7 @@ begin
 
                     state <= EXECUTE;
                 when EXECUTE =>
-
+                    
                     state <= MEMORY;
                 when MEMORY =>
 
