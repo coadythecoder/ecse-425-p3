@@ -95,18 +95,61 @@ architecture arch of processor is
         read_data2 => B
     );
 
+    type state_type is (FETCH, DECODE, EXECUTE, MEMORY, WRITEBACK);
+    signal state : state_type;
+
 begin
-    mux_pc <= alu_out when cond = '1' else npc;
-    -- mux_write <= lmd when 
-
-
     cpu_process: process(clock, reset)
+        variable opcode : std_logic_vector(6 downto 0);
+        variable imm_raw : std_logic_vector(31 downto 0);
     begin
         if reset = '1' then
             pc <= 0;
+            state <= FETCH;
         
         elsif rising_edge(clock) then
+            case state is
+                when FETCH =>
+                    ir <= instr_mem(pc);
+                    npc <= pc + 4;
+                    state <= DECODE;
+                when DECODE =>
+                    opcode := ir(6 downto 0);
+                    imm_raw := (others => '0');
+                    
+                    case opcode is
+                        when opcode = "0010011" | opcode = "0000011" | opcode = "1100111"=> -- I-type
+                            imm_raw(11 downto 0) := ir(31 downto 20);
+                        when opcode = "0100011" => -- S-type
+                            imm_raw(11 downto 5) := ir(31 downto 25);
+                            imm_raw(4 downto 0) := ir(11 downto 7);
+                        when opcode = "1100011" => -- B-type
+                            imm_raw(12) := ir(31);
+                            imm_raw(10 downto 5) := ir(30 downto 25);
+                            imm_raw(4 downto 1) := ir(11 downto 8);
+                            imm_raw(11) := ir(7);
+                        when opcode = "0110111" | opcode = "0010111" => -- U-type
+                            imm_raw(31 downto 12) := ir(31 downto 12);
+                        when opcode = "1101111" => -- J-type
+                            imm_raw(20) := ir(31);
+                            imm_raw(10 downto 1) := ir(30 downto 21);
+                            imm_raw(11) := ir(20);
+                            imm_raw(19 downto 12) := ir(19 downto 12);
+                    end case;
 
+                    imm <= imm_raw;
+
+                    state <= EXECUTE;
+                when EXECUTE =>
+
+                    state <= MEMORY;
+                when MEMORY =>
+
+                    state <= WRITEBACK;
+                when WRITEBACK =>
+
+                    state <= FETCH;
+            end case;
         
         elsif falling_edge(clock) then
         
