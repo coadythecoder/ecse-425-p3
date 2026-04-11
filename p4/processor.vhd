@@ -40,9 +40,19 @@ architecture arch of processor is
         );
     end component;
 
-    signal pc : integer;
-    signal read_data2_to_data_mem_write_data : std_logic_vector(31 downto 0);
-    signal alu_result_to_data_mem_addr : std_logic_vector(31 downto 0);
+    signal pc : integer; -- program counter
+    signal npc : integer; -- new program counter value (pc + 4)
+    signal ir : std_logic_vector(31 downto 0); -- instruction register, used to hold Mem[PC]
+    signal A : std_logic_vector(31 downto 0); -- register to store read data 1
+    signal B : std_logic_vector(31 downto 0); -- register to store reaad data 2
+    signal imm : std_logic_vector(31 downto 0); -- extended (be careful) immediate value
+    signal cond : std_logic; -- signal to decide whether or not to branch
+    signal lmd : std_logic_vector(31 downto 0); -- register to store data loaded from memory
+    signal alu_out : std_logic_vector(31 downto 0); -- register to store output of alu
+    signal mux_a : std_logic_vector(31 downto 0); -- mux for input 1 of alu
+    signal mux_b : std_logic_vector(31 downto 0); -- mux for input 2 of alu
+    signal mux_pc : std_logic_vector(31 downto 0); -- mux for updating pc value
+    signal mux_write : std_logic_vector(31 downto 0); -- mux for writeback 
 
     data_mem : memory port map(
         clock => clock;
