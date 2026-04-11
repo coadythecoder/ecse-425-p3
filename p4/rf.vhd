@@ -44,6 +44,7 @@ begin
         variable write_index : integer;
     begin
         if rising_edge(clk) then
+            write_index := to_integer(unsigned(write_addr));
             my_rf(write_index) <= write_data;
         end if;
     end process;
