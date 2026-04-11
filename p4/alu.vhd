@@ -5,8 +5,8 @@ use ieee.numeric_std.all;
 entity alu is
     port(
         instruction : in std_logic_vector(31 downto 0);
-        A : in std_logic_vector(31 downto 0);
-        B : in std_logic_vector(31 downto 0);
+        op1 : in std_logic_vector(31 downto 0);
+        op2 : in std_logic_vector(31 downto 0);
         result : out std_logic_vector(31 downto 0)
     );
 end alu;
@@ -23,12 +23,12 @@ begin
         variable temp : signed(63 downto 0);
         variable shift_amount : unsigned(4 downto 0);
     begin
-        rs1 := signed(A);
-        rs2 := signed(B);
+        rs1 := signed(op1);
+        rs2 := signed(op2);
         opcode := instruction(6 downto 0);
         funct3 := instruction(14 downto 12);
         funct7 := instruction(31 downto 25);
-        shift_amount := unsigned(B)(4 downto 0);
+        shift_amount := unsigned(op2)(4 downto 0);
         case opcode is 
             when '0110011' =>
                 case funct3 is
@@ -42,14 +42,14 @@ begin
                             result <= std_logic_vector(rs1 - rs2);
                         end if;
                     when x"6" => -- or
-                        result <= A or B;
+                        result <= op1 or op2;
                     when x"7" => -- and
-                        result <= A and B;
+                        result <= op1 and op2;
                     when x"1" => -- sll
                         result <= rs1 << rs2
                     when x"5" =>
                         if funct7 = x"00" then -- shift right logical
-                            result <= std_logic_vector(shift_right(unsigned(A), shift_amount));
+                            result <= std_logic_vector(shift_right(unsigned(op1), shift_amount));
                         elsif funct7 = x"20" then -- shift right arithmetic
                             result <= std_logic_vector(shift_right(rs1, shift_amount));
                         end if;
@@ -59,11 +59,11 @@ begin
                     when x"0" => -- add imm
                         result <= std_logic_vector(rs1 + rs2);
                     when x"4" => -- xor imm
-                        result <= A xor B;
+                        result <= op1 xor op2;
                     when x"6" => -- or imm
-                        result <= A or B;
+                        result <= op1 or op2;
                     when x"7" => -- and imm
-                        result <= A and B;
+                        result <= op1 and op2;
                     when x"2" => -- set less than immediate (rd = (rs1<imm)?1:0)
                         if rs1 < rs2 then
                             result <= to_std_logic_vector(1, 32);
