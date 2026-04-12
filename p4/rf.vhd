@@ -10,6 +10,7 @@ entity rf is
         read_addr2 : in std_logic_vector(4 downto 0);
         write_addr : in std_logic_vector(4 downto 0);
         write_data : in std_logic_vector(31 downto 0);
+        write_enable : in std_logic;
         read_data1 : out std_logic_vector(31 downto 0);
         read_data2 : out std_logic_vector(31 downto 0)
     );
@@ -40,10 +41,10 @@ begin
         read_data2 <= my_rf(index2);
     end process;
 
-    write_process: process(clk)
+    write_process: process(clk, write_enable)
         variable write_index : integer;
     begin
-        if rising_edge(clk) then
+        if write_enable = 1 and rising_edge(clk) then
             write_index := to_integer(unsigned(write_addr));
             my_rf(write_index) <= write_data;
         end if;
