@@ -123,6 +123,7 @@ begin
 
     cpu_process: process(clock, reset)
         variable opcode : std_logic_vector(6 downto 0);
+        variable funct3 : std_logic_vector(2 downto 0);
         variable imm_raw : std_logic_vector(31 downto 0);
     begin
         if reset = '1' then
@@ -183,10 +184,24 @@ begin
 
                     state <= EXECUTE;
                 when EXECUTE =>
-                    
+                    opcode := ir(6 downto 0);
+                    funct3 := ir(14 downto 0);
+                    if opcode = '1100011' then
+                        case funct3 is
+                            when x"0" => -- beq
+                                mux_pc_select <= '0' when A = B else '1';
+                            when x"1" => -- bne
+                                mux_pc_select <= '0' when A /= B else '1';
+                            when x"4" => -- blt
+                                mux_pc_select <= '0' when unsigned(A) < unsigned(B) else '1';
+                            when x"5" => -- bge
+                                mux_pc_select <= '0' when unsigned(A) >= unsigned(B) else '1';
+                        end case;
+                    else
+                        mux_pc_select <= '1'; -- i.e. do not branch
+                    end if;
                     state <= MEMORY;
                 when MEMORY =>
-
                     state <= WRITEBACK;
                 when WRITEBACK =>
 
