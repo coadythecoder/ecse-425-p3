@@ -14,13 +14,14 @@ end alu;
 architecture arch of alu is 
 begin
     -- stuff
-    process (instruction)
+    process (instruction, op1, op2)
         variable opcode : std_logic_vector(6 downto 0);
         variable funct3 : std_logic_vector(3 downto 0);
         variable funct7 : std_logic_vector(7 downto 0);
         variable rs1 : signed(31 downto 0);
         variable rs2 : signed(31 downto 0);
         variable temp : signed(63 downto 0);
+        variable target : signed(31 downto 0);
         variable shift_amount : integer;
         variable op2_unsigned : unsigned(31 downto 0);
     begin
@@ -31,6 +32,7 @@ begin
         funct7 := "0" & instruction(31 downto 25);
         op2_unsigned := unsigned(op2);
         shift_amount := to_integer(op2_unsigned(4 downto 0));
+        result <= (others => '1');
         case opcode is 
             when "0110011" =>
                 case funct3 is
@@ -85,12 +87,14 @@ begin
                 result <= std_logic_vector(rs1 + rs2); -- do i need to shift imm (rs2)??? how much???
             when "1101111" => -- jump and link
                 result <= std_logic_vector(rs1 + rs2); -- rs1=PC, rs2=imm do i need to shift imm??? how much???
-            when "1100111" => -- jump and link reg
-                result <= std_logic_vector(rs1 + rs2); -- rs1=rs1, rs2=imm do i need to shift imm??? how much??
-            when "0110111" => -- load upper imm
-                result <= std_logic_vector(shift_left(rs1, 12));
-            when "0010111" => -- add upper imm to pc
-                result <= std_logic_vector(rs1 + shift_left(rs1, 12));
+            when "1100111" => -- jump and link reg: target = (rs1 + imm) & ~1
+                target := rs1 + rs2;
+                target(0) := '0';
+                result <= std_logic_vector(target);
+            when "0110111" => -- load upper imm: rd = imm (already formed as {ir[31:12], 12'b0})
+                result <= op2;
+            when "0010111" => -- add upper imm to pc: rd = PC + imm
+                result <= std_logic_vector(rs1 + rs2);
             when others =>
                 result <= (others => '1');  -- all 1's to be very evident when this case happens
         end case;

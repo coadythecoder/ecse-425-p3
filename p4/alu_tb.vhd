@@ -9,8 +9,8 @@ architecture behavior of alu_tb is
     component alu is
         port(
             instruction : in std_logic_vector(31 downto 0);
-            A : in std_logic_vector(31 downto 0);
-            B : in std_logic_vector(31 downto 0);
+            op1 : in std_logic_vector(31 downto 0);
+            op2 : in std_logic_vector(31 downto 0);
             result : out std_logic_vector(31 downto 0)
         );
     end component;
@@ -70,7 +70,7 @@ architecture behavior of alu_tb is
         variable rs2 : signed(31 downto 0);
         variable temp : signed(63 downto 0);
         variable shift_amount : natural range 0 to 31;
-        variable exp : std_logic_vector(31 downto 0) := (others => '0');
+        variable exp : std_logic_vector(31 downto 0) := (others => '1');
     begin
         rs1 := signed(a_in);
         rs2 := signed(b_in);
@@ -120,6 +120,8 @@ architecture behavior of alu_tb is
                     when "010" =>
                         if rs1 < rs2 then
                             exp := (31 downto 1 => '0') & '1';
+                        else
+                            exp := (others => '0');
                         end if;
                     when others =>
                         null;
@@ -134,8 +136,8 @@ architecture behavior of alu_tb is
 begin
     dut: alu port map(
         instruction => instruction,
-        A => A,
-        B => B,
+        op1 => A,
+        op2 => B,
         result => result
     );
 
