@@ -10,6 +10,7 @@ entity rf is
         read_addr2 : in std_logic_vector(4 downto 0);
         write_addr : in std_logic_vector(4 downto 0);
         write_data : in std_logic_vector(31 downto 0);
+        write_enable : in std_logic;
         read_data1 : out std_logic_vector(31 downto 0);
         read_data2 : out std_logic_vector(31 downto 0)
     );
@@ -20,39 +21,32 @@ architecture arch of rf is
 
     signal my_rf : reg_file;
 begin
-    read_process: process(read_addr1, read_addr2, my_rf)
+    reset_process: process(reset)
+    begin
+        if reset = '1' then
+            for i in 0 to 31 loop
+                my_rf(i) <= (others => '0');
+            end loop;
+        end if;
+    end process;
+
+    read_process: process(read_addr1, read_addr2)
         variable index1 : integer;
         variable index2 : integer;
     begin
         index1 := to_integer(unsigned(read_addr1));
         index2 := to_integer(unsigned(read_addr2));
 
-        if read_addr1 = "00000" then
-            read_data1 <= (others => '0');
-        else
-            read_data1 <= my_rf(index1);
-        end if;
-
-        if read_addr2 = "00000" then
-            read_data2 <= (others => '0');
-        else
-            read_data2 <= my_rf(index2);
-        end if;
+        read_data1 <= my_rf(index1);
+        read_data2 <= my_rf(index2);
     end process;
 
-    write_process: process(clk, reset)
+    write_process: process(clk, write_enable)
         variable write_index : integer;
     begin
-        if reset = '1' then
-            for i in 0 to 31 loop
-                my_rf(i) <= (others => '0');
-            end loop;
-        elsif rising_edge(clk) then
+        if write_enable = '1' and rising_edge(clk) then
             write_index := to_integer(unsigned(write_addr));
-            if write_addr /= "00000" then
-                my_rf(write_index) <= write_data;
-            end if;
-            my_rf(0) <= (others => '0');
+            my_rf(write_index) <= write_data;
         end if;
     end process;
 
