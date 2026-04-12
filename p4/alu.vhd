@@ -46,7 +46,7 @@ begin
                     when x"7" => -- and
                         result <= op1 and op2;
                     when x"1" => -- sll
-                        result <= rs1 << rs2
+                        result <= std_logic_vector(shift_left(rs1, shift_ammount));
                     when x"5" =>
                         if funct7 = x"00" then -- shift right logical
                             result <= std_logic_vector(shift_right(unsigned(op1), shift_amount));
@@ -75,17 +75,16 @@ begin
                 result <= std_logic_vector(rs1 + rs2); -- rs1 + imm for addressing memory
             when '0100011' => -- store word
                 result <= std_logic_vector(rs1 + rs2); -- rs1 + imm for addressing memory
-            when '1100011' =>
-                case funct3 is
-                    when x"0" => -- beq
-                    when x"1" => -- bne
-                    when x"4" => -- blt
-                    when x"5" => -- bge
-                end case;
+            when '1100011' => -- branch
+                result <= std_logic_vector(rs1 + rs2); -- do i need to shift imm (rs2)??? how much???
             when '1101111' => -- jump and link
+                result <= std_logic_vector(rs1 + rs2); -- rs1=PC, rs2=imm do i need to shift imm??? how much???
             when '1100111' => -- jump and link reg
+                result <= std_logic_vector(rs1 + rs2); -- rs1=rs1, rs2=imm do i need to shift imm??? how much??
             when '0110111' => -- load upper imm
+                result <= std_logic_vector(shift_left(rs1, 12));
             when '0010111' => -- add upper imm to pc
+                result <= std_logic_vector(rs1 + shift_left(rs1, 12));
         end case;
     end process;
 end arch;
