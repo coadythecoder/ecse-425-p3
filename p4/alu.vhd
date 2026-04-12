@@ -71,6 +71,21 @@ begin
                             result <= to_std_logic_vector(0, 32);
                         end if;
                 end case;
+            when '0000011' => -- load word
+                result <= std_logic_vector(rs1 + rs2); -- rs1 + imm for addressing memory
+            when '0100011' => -- store word
+                result <= std_logic_vector(rs1 + rs2); -- rs1 + imm for addressing memory
+            when '1100011' =>
+                case funct3 is
+                    when x"0" => -- beq
+                    when x"1" => -- bne
+                    when x"4" => -- blt
+                    when x"5" => -- bge
+                end case;
+            when '1101111' => -- jump and link
+            when '1100111' => -- jump and link reg
+            when '0110111' => -- load upper imm
+            when '0010111' => -- add upper imm to pc
         end case;
     end process;
 end arch;
