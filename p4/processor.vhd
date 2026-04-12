@@ -129,10 +129,14 @@ begin
         if reset = '1' then
             pc <= 0;
             state <= FETCH;
+            mem_write <= '0';
+            mem_read <= '0';
+            reg_write <= '0';
         
         elsif rising_edge(clock) then
             case state is
                 when FETCH =>
+                    reg_write <= '0';
                     ir <= instr_mem(pc);
                     npc <= pc + 4;
                     state <= DECODE;
@@ -202,15 +206,28 @@ begin
                     end if;
                     state <= MEMORY;
                 when MEMORY =>
+                    if opcode = '0000011' then -- lw
+                        mem_read = '1';
+                        mux_write_select <= 1; -- write-back value loaded from memory
+                    elsif opcode = '1101111' or opcode = '1100111' then -- jal or jalr
+                        mux_write_select <= 2; -- write back npc (or maybe pc idk)
+                    else
+                        mux_write_select <= 0; -- write-back output of alu
+                    end if;
                     state <= WRITEBACK;
                 when WRITEBACK =>
-
+                    mem_read = '0';
+                    reg_write = '1';
                     state <= FETCH;
             end case;
         
         elsif falling_edge(clock) then
-        
-        
+            opcode := ir(6 downto 0);
+            if state = MEMORY then
+                if opcode = "0100011" then -- store word
+                    mem_write <= '1';
+                end if;
+            end if;
         end if;
     end process;
 end arch;
