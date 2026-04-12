@@ -14,6 +14,7 @@ architecture behavior of rf_tb is
             read_addr2 : in std_logic_vector(4 downto 0);
             write_addr : in std_logic_vector(4 downto 0);
             write_data : in std_logic_vector(31 downto 0);
+            write_enable : in std_logic;
             read_data1 : out std_logic_vector(31 downto 0);
             read_data2 : out std_logic_vector(31 downto 0)
         );
@@ -27,6 +28,7 @@ architecture behavior of rf_tb is
     signal read_addr2 : std_logic_vector(4 downto 0) := (others => '0');
     signal write_addr : std_logic_vector(4 downto 0) := (others => '0');
     signal write_data : std_logic_vector(31 downto 0) := (others => '0');
+    signal write_enable : std_logic := '1';
     signal read_data1 : std_logic_vector(31 downto 0);
     signal read_data2 : std_logic_vector(31 downto 0);
 
@@ -46,6 +48,7 @@ begin
         read_addr2 => read_addr2,
         write_addr => write_addr,
         write_data => write_data,
+        write_enable => write_enable,
         read_data1 => read_data1,
         read_data2 => read_data2
     );

@@ -21,32 +21,41 @@ architecture arch of rf is
 
     signal my_rf : reg_file;
 begin
-    reset_process: process(reset)
-    begin
-        if reset = '1' then
-            for i in 0 to 31 loop
-                my_rf(i) <= (others => '0');
-            end loop;
-        end if;
-    end process;
-
-    read_process: process(read_addr1, read_addr2)
+    read_process: process(read_addr1, read_addr2, my_rf)
         variable index1 : integer;
         variable index2 : integer;
     begin
         index1 := to_integer(unsigned(read_addr1));
         index2 := to_integer(unsigned(read_addr2));
 
-        read_data1 <= my_rf(index1);
-        read_data2 <= my_rf(index2);
+        if index1 = 0 then
+            read_data1 <= (others => '0');
+        else
+            read_data1 <= my_rf(index1);
+        end if;
+
+        if index2 = 0 then
+            read_data2 <= (others => '0');
+        else
+            read_data2 <= my_rf(index2);
+        end if;
     end process;
 
-    write_process: process(clk, write_enable)
+    write_process: process(clk, reset)
         variable write_index : integer;
     begin
-        if write_enable = '1' and rising_edge(clk) then
-            write_index := to_integer(unsigned(write_addr));
-            my_rf(write_index) <= write_data;
+        if reset = '1' then
+            for i in 0 to 31 loop
+                my_rf(i) <= (others => '0');
+            end loop;
+        elsif rising_edge(clk) then
+            if write_enable = '1' then
+                write_index := to_integer(unsigned(write_addr));
+                if write_index /= 0 then
+                    my_rf(write_index) <= write_data;
+                end if;
+            end if;
+            my_rf(0) <= (others => '0');
         end if;
     end process;
 
