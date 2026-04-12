@@ -73,7 +73,7 @@ architecture arch of processor is
     signal mux_pc_select : std_logic; -- selector for mux_pc
     signal mux_write_select : integer range 0 to 2; -- selector for mux_write
 
-    type state_type is (FETCH, DECODE, EXECUTE, MEMORY, WRITEBACK);
+    type state_type is (FETCH, DECODE, EXECUTE, MEM, WRITEBACK);
     signal state : state_type;
 
 begin
@@ -204,8 +204,8 @@ begin
                     else
                         mux_pc_select <= '1'; -- i.e. do not branch
                     end if;
-                    state <= MEMORY;
-                when MEMORY =>
+                    state <= MEM;
+                when MEM =>
                     if opcode = '0000011' then -- lw
                         mem_read = '1';
                         mux_write_select <= 1; -- write-back value loaded from memory
@@ -223,7 +223,7 @@ begin
         
         elsif falling_edge(clock) then
             opcode := ir(6 downto 0);
-            if state = MEMORY then
+            if state = MEM then
                 if opcode = "0100011" then -- store word
                     mem_write <= '1';
                 end if;
