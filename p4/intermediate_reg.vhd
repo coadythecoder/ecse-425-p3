@@ -75,14 +75,17 @@ begin
     process(clk, reset)
     begin
         if reset = '1' then
-		npc_reg	<= (others => '0');
-		a_reg	<= (others => '0');
-		b_reg	<= (others => '0');
-		immval_reg	<= (others => '0');
-		rd_reg	<= (others => '0');
+            npc_reg	<= (others => '0');
+            a_reg	<= (others => '0');
+            b_reg	<= (others => '0');
+            immval_reg	<= (others => '0');
+            rd_reg	<= (others => '0');
+            ir_reg	<= (others => '0');
+            mux_a_select_reg	<= '0';
+            mux_b_select_reg	<= '0';
 
         elsif rising_edge(clk) then
-            if enable = '1' the
+            if enable = '1' then
                 npc_reg	<= npc_in;
                 a_reg	<= a_in;
                 b_reg	<= b_in;
@@ -134,14 +137,14 @@ begin
     process(clk, reset)
     begin
         if reset = '1' then
-		npc_reg	<= (others => '0');
-		a_reg	<= (others => '0');
-		b_reg	<= (others => '0');
-		immval_reg	<= (others => '0');
-		rd_reg	<= (others => '0');
+            mux_pc_select_reg <= '0';
+            aluout_reg <= (others => '0');
+            b_reg <= (others => '0');
+            rd_reg <= (others => '0');
+            ir_reg <= (others => '0');
 
         elsif rising_edge(clk) then
-            if enable = '1' the
+            if enable = '1' then
                 mux_pc_select_reg	<= mux_pc_select_in;
                 aluout_reg	<= aluout_in;
                 b_reg	<= b_in;
@@ -172,7 +175,7 @@ entity mem_wb_reg is
         mux_write_select_out	: out  std_logic;
         aluout_out	: out  std_logic_vector(31 downto 0);
         mem_ldr_result_out	: out  std_logic_vector(31 downto 0);
-        rd_out	: out  std_logic_vector(11 downto 7);
+        rd_out	: out  std_logic_vector(11 downto 7)
 
     );
 end mem_wb_reg;
@@ -188,14 +191,14 @@ begin
     process(clk, reset)
     begin
         if reset = '1' then
-		npc_reg	<= (others => '0');
-		a_reg	<= (others => '0');
-		b_reg	<= (others => '0');
-		immval_reg	<= (others => '0');
-		rd_reg	<= (others => '0');
+            regwrite_reg	<= '0';
+            mux_write_select_reg	<= '0';
+            aluout_reg	<= (others => '0');
+            mem_ldr_result_reg	<= (others => '0');
+            rd_reg	<= (others => '0');
 
         elsif rising_edge(clk) then
-            if enable = '1' the
+            if enable = '1' then
                 regwrite_reg	<= regwrite_in;
                 mux_write_select_reg	<= mux_write_select_in;
                 aluout_reg	<= aluout_in;

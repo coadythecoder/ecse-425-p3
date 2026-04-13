@@ -1,0 +1,531 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity processor is
+    port(
+        clock  : in std_logic;
+        reset  : in std_logic
+    );
+end processor;
+
+architecture arch of processor is
+    component memory is
+        generic(
+            ram_size : integer := 32768;
+            mem_delay : time := 1 ns;
+            clock_period : time := 1 ns;
+            writable : boolean := true
+        );
+        port (
+            clock: in std_logic;
+            writedata: in std_logic_vector(31 downto 0);
+            address: in integer range 0 to ram_size-1;
+            memwrite: in std_logic;
+            memread: in std_Logic;
+            readdata: out std_logic_vector(31 downto 0);
+            waitrequest: out std_logic
+        );
+    end component;
+    
+    component rf is 
+        port(
+            clk : in std_logic;
+            reset : in std_logic;
+            read_addr1 : in std_logic_vector(4 downto 0);
+            read_addr2 : in std_logic_vector(4 downto 0);
+            write_addr : in std_logic_vector(4 downto 0);
+            write_data : in std_logic_vector(31 downto 0);
+            write_enable : in std_logic;
+            read_data1 : out std_logic_vector(31 downto 0);
+            read_data2 : out std_logic_vector(31 downto 0)
+        );
+    end component;
+
+    component alu is
+        port (
+            instruction : in std_logic_vector(31 downto 0);
+            op1 : in std_logic_vector(31 downto 0);
+            op2 : in std_logic_vector(31 downto 0);
+            result : out std_logic_vector(31 downto 0)
+        );
+    end component;
+
+    component if_id_reg is
+        port (
+            clk        : in  std_logic;
+            reset      : in  std_logic;
+            enable     : in  std_logic;
+            ir_in   : in  std_logic_vector(31 downto 0);
+            pc_in      : in  std_logic_vector(31 downto 0);
+            ir_out  : out std_logic_vector(31 downto 0);
+            pc_out     : out std_logic_vector(31 downto 0)
+        );
+    end component;
+
+    component id_ex_reg is
+        port (
+            clk	: in  std_logic;
+            reset	: in  std_logic;
+            enable	: in  std_logic;
+            npc_in	: in  std_logic_vector(31 downto 0);
+            a_in	: in  std_logic_vector(31 downto 0);
+            b_in	: in  std_logic_vector(31 downto 0);
+            immval_in	: in  std_logic_vector(31 downto 0);
+            rd_in	: in  std_logic_vector(11 downto 7);
+            ir_in   : in  std_logic_vector(31 downto 0);
+            mux_a_select_in   : in  std_logic;
+            mux_b_select_in   : in  std_logic;
+            npc_out	: out  std_logic_vector(31 downto 0);
+            a_out	: out  std_logic_vector(31 downto 0);
+            b_out	: out  std_logic_vector(31 downto 0);
+            immval_out	: out  std_logic_vector(31 downto 0);
+            rd_out	: out  std_logic_vector(11 downto 7);
+            ir_out  : out std_logic_vector(31 downto 0);
+            mux_a_select_out   : out  std_logic;
+            mux_b_select_out   : out  std_logic;
+        );
+    end component;
+
+    component ex_mem_reg is 
+        port (
+            clk	: in  std_logic;
+            reset	: in  std_logic;
+            enable	: in  std_logic;
+            mux_pc_select_in	: in  std_logic;
+            aluout_in	: in  std_logic_vector(31 downto 0);
+            b_in	: in  std_logic_vector(31 downto 0);
+            rd_in	: in  std_logic_vector(11 downto 7);
+            ir_in   : in  std_logic_vector(31 downto 0);
+            mux_pc_select_out	: out  std_logic;
+            aluout_out	: out  std_logic_vector(31 downto 0);
+            b_out	: out  std_logic_vector(31 downto 0);
+            rd_out	: out  std_logic_vector(11 downto 7);
+            ir_out   : out  std_logic_vector(31 downto 0)
+        );
+    end component;
+
+    component mem_wb_reg is
+        port (
+            clk	: in  std_logic;
+            reset	: in  std_logic;
+            enable	: in  std_logic;
+            regwrite_in	: in  std_logic;
+            mux_write_select_in	: in  std_logic;
+            aluout_in	: in  std_logic_vector(31 downto 0);
+            mem_ldr_result_in	: in  std_logic_vector(31 downto 0);
+            rd_in	: in  std_logic_vector(11 downto 7);
+            regwrite_out	: out  std_logic;
+            mux_write_select_out	: out  std_logic;
+            aluout_out	: out  std_logic_vector(31 downto 0);
+            mem_ldr_result_out	: out  std_logic_vector(31 downto 0);
+            rd_out	: out  std_logic_vector(11 downto 7)
+        );
+    end component;
+
+    signal pc : integer := 0;           -- program counter
+    signal npc : integer := 0;          -- new program counter value (pc + 4)
+    signal pc_word : integer := 0;      -- pc / 4 (word index for instruction memory)
+    signal ir : std_logic_vector(31 downto 0);  -- instruction register, used to hold Mem[PC]
+    signal A : std_logic_vector(31 downto 0);   -- register to store read data 1
+    signal B : std_logic_vector(31 downto 0);   -- register to store reaad data 2
+    signal imm : std_logic_vector(31 downto 0); -- extended (be careful) immediate value
+    signal lmd : std_logic_vector(31 downto 0); -- register to store data loaded from memory
+    signal alu_out : std_logic_vector(31 downto 0); -- register to store output of alu
+    signal alu_out_int : integer := 0;
+    signal data_addr : integer := 0;    -- alu_out_int / 4 (word index for data memory)
+
+    signal mux_a : std_logic_vector(31 downto 0); -- mux for input 1 of alu
+    signal mux_b : std_logic_vector(31 downto 0); -- mux for input 2 of alu
+    signal mux_pc : std_logic_vector(31 downto 0); -- mux for updating pc value
+    signal mux_write : std_logic_vector(31 downto 0); -- mux for writeback
+
+    signal mem_read  : std_logic := '0'; -- selector to read from data memory
+    signal mem_write : std_logic := '0'; -- selector to write to data memory
+    signal reg_write : std_logic := '0'; -- selector to write to registers
+
+    -- mux_a_select: '0' => A (rs1), '1' => pc
+    signal mux_a_select : std_logic := '0';     -- selector for mux_a
+    -- mux_b_select: '0' => imm, '1' => B (rs2) 
+    signal mux_b_select : std_logic := '0';     -- selector for mux_b
+    -- mux_pc_select: '0' => alu_out (branch/jump target), '1' => npc (sequential)
+    signal mux_pc_select : std_logic := '1';        -- selector for mux_pc
+    -- mux_write_select: 0 => alu_out, 1 => lmd, 2 => npc (return address)
+    signal mux_write_select : integer range 0 to 2 := 0; -- selector for mux_write
+
+    signal if_ir_in  : std_logic_vector(31 downto 0);
+    signal if_pc_in  : std_logic_vector(31 downto 0);
+    signal if_id_ir  : std_logic_vector(31 downto 0);
+    signal if_id_pc  : std_logic_vector(31 downto 0);
+
+
+    signal id_npc_in  : std_logic_vector(31 downto 0);
+    signal id_a_data  : std_logic_vector(31 downto 0);
+    signal id_b_data  : std_logic_vector(31 downto 0);
+    signal id_imm     : std_logic_vector(31 downto 0);
+    signal id_rd      : std_logic_vector(11 downto 7);
+    signal id_ir      : std_logic_vector(31 downto 0);
+    signal id_mux_a_select : std_logic;
+    signal id_mux_b_select : std_logic;
+    signal id_ex_npc  : std_logic_vector(31 downto 0);
+    signal id_ex_a    : std_logic_vector(31 downto 0);
+    signal id_ex_b    : std_logic_vector(31 downto 0);
+    signal id_ex_imm  : std_logic_vector(31 downto 0);
+    signal id_ex_rd   : std_logic_vector(11 downto 7);
+    signal id_ex_ir   : std_logic_vector(31 downto 0);
+    signal id_ex_mux_a_select : std_logic;
+    signal id_ex_mux_b_select : std_logic;
+
+    signal ex_mux_pc_select : std_logic;
+    signal ex_alu_out : std_logic_vector(31 downto 0);
+    signal ex_b       : std_logic_vector(31 downto 0);
+    signal ex_rd      : std_logic_vector(11 downto 7);
+    signal ex_ir      : std_logic_vector(31 downto 0);
+    signal ex_mem_mux_pc_select : std_logic;
+    signal ex_mem_alu_out       : std_logic_vector(31 downto 0);
+    signal ex_mem_b             : std_logic_vector(31 downto 0);
+    signal ex_mem_rd            : std_logic_vector(11 downto 7);
+    signal ex_mem_ir            : std_logic_vector(31 downto 0);
+
+    signal mem_regwrite        : std_logic;
+    signal mem_mux_write_select : std_logic;
+    signal mem_alu_out   : std_logic_vector(31 downto 0);
+    signal mem_data_out  : std_logic_vector(31 downto 0);
+    signal mem_rd        : std_logic_vector(11 downto 7);
+    signal wb_regwrite        : std_logic;
+    signal wb_mux_write_select : std_logic_vector(1 downto 0);
+    signal wb_alu_out         : std_logic_vector(31 downto 0);
+    signal wb_mem_data        : std_logic_vector(31 downto 0);
+    signal wb_rd              : std_logic_vector(11 downto 7);
+
+begin
+    -- Combinatorial conversions
+    alu_out_int <= to_integer(signed(alu_out));
+    data_addr   <= alu_out_int / 4 when alu_out_int >= 0 else 0; -- prevent overflow
+    pc_word     <= pc / 4;
+
+    -- Muxes combinatorial
+    -- mux_a: '0' => rs1 register, '1' => current PC (for branch/JAL targets)
+    mux_a <= id_ex_a when id_ex_mux_a_select = '0' else std_logic_vector(to_unsigned(id_ex_npc, 32));
+    -- mux_b: '0' => immediate, '1' => rs2 register
+    mux_b <= id_ex_imm when id_ex_mux_b_select = '0' else id_ex_b;
+    -- mux_pc: '0' => alu_out (branch/jump target), '1' => npc (fall-through)
+    mux_pc <= ex_mem_alu_out when ex_mem_mux_pc_select = '0' else std_logic_vector(to_unsigned(pc + 4, 32)); --does pc+4 produce correct addr?
+    -- mux_write: 0 => alu_out, 1 => lmd (loaded value), 2 => npc (JAL return addr)
+    mux_write <= wb_alu_out when mux_write_select = 0
+            else wb_mem_data    when mux_write_select = 1
+            else std_logic_vector(to_unsigned(id_ex_npc, 32));
+
+    -- Data memory (byte-addressed in RISC-V; word-indexed here via data_addr = alu_out/4)
+    data_mem : memory port map(
+        clock => clock,
+        writedata => ex_mem_b, --data to be stored into mem is the ex/mem output b
+        address => ex_mem_alu_out, --adress is the ex/mem aluout output
+        memwrite => mem_write,
+        memread => mem_read,
+        readdata => mem_data_out, --output of data mem is connected to input in mem/wb
+        waitrequest => open
+    );
+
+    -- Instruction memory (word-indexed via pc_word = pc/4)
+    instr_mem : memory
+        generic map(writable => false)
+        port map(
+            clock => clock,
+            writedata => (others => '0'),
+            address => pc_word,
+            memwrite => '0',
+            memread => '0',
+            readdata => if_ir_in, --instruction go straight to if/id ir input
+            waitrequest => open
+        );
+
+    -- Register file
+    reg_file : rf port map(
+        clk => clock,
+        reset => reset,
+        read_addr1 => if_id_ir(19 downto 15), --read inputs both come from if/id IR output
+        read_addr2 => if_id_ir(24 downto 20),
+        write_addr => wb_rd, --rd output of mem/wb connects to reg file write address
+        write_data => mux_write,
+        write_enable => wb_regwrite, --this is controlled by regwrite output of mem/wb
+        read_data1 => id_a_data, --outputs of reg file connects to inputs of id/ex
+        read_data2 => id_b_data
+    );
+
+    -- ALU
+    my_alu : alu port map(
+        instruction => id_ex_ir, --alu operation determined by ir output of id/ex
+        op1 => mux_a,
+        op2 => mux_b,
+        result => ex_alu_out --alu output connected to input of ex/mem
+    );
+
+    --------------------------------------------------------------------
+    -- IF/ID REGISTER
+    --------------------------------------------------------------------
+    u_if_id : if_id_reg
+    port map (
+        clk    => clock,
+        reset  => reset,
+        enable => '1',
+
+        ir_in  => if_ir_in,
+        pc_in  => if_pc_in,
+
+        ir_out => if_id_ir,
+        pc_out => if_id_pc
+    );
+
+    --------------------------------------------------------------------
+    -- ID/EX REGISTER
+    --------------------------------------------------------------------
+    u_id_ex : id_ex_reg
+    port map (
+        clk    => clock,
+        reset  => reset,
+        enable => '1',
+
+        npc_in        => id_npc_in,
+        a_in          => id_a_data,
+        b_in          => id_b_data,
+        immval_in     => id_imm,
+        rd_in         => id_rd,
+        ir_in         => id_ir,
+
+        mux_a_select_in => id_mux_a_select,
+        mux_b_select_in => id_mux_b_select,
+
+        npc_out       => id_ex_npc,
+        a_out         => id_ex_a,
+        b_out         => id_ex_b,
+        immval_out    => id_ex_imm,
+        rd_out        => id_ex_rd,
+        ir_out        => id_ex_ir,
+
+        mux_a_select_out => id_ex_mux_a_select,
+        mux_b_select_out => id_ex_mux_b_select
+    );
+
+    --------------------------------------------------------------------
+    -- EX/MEM REGISTER
+    --------------------------------------------------------------------
+    u_ex_mem : ex_mem_reg
+    port map (
+        clk    => clock,
+        reset  => reset,
+        enable => '1',
+
+        mux_pc_select_in => ex_mux_pc_select,
+        aluout_in        => ex_alu_out,
+        b_in             => ex_b,
+        rd_in            => ex_rd,
+        ir_in            => ex_ir,
+
+        mux_pc_select_out => ex_mem_mux_pc_select,
+        aluout_out        => ex_mem_alu_out,
+        b_out             => ex_mem_b,
+        rd_out            => ex_mem_rd,
+        ir_out            => ex_mem_ir
+    );
+
+    --------------------------------------------------------------------
+    -- MEM/WB REGISTER
+    --------------------------------------------------------------------
+    u_mem_wb : mem_wb_reg
+    port map (
+        clk    => clock,
+        reset  => reset,
+        enable => '1',
+
+        regwrite_in        => mem_regwrite,
+        mux_write_select_in=> mem_mux_write_select,
+        aluout_in          => mem_alu_out,
+        mem_ldr_result_in  => mem_data_out,
+        rd_in              => mem_rd,
+
+        regwrite_out        => wb_regwrite,
+        mux_write_select_out=> wb_mux_write_select,
+        aluout_out          => wb_alu_out,
+        mem_ldr_result_out  => wb_mem_data,
+        rd_out              => wb_rd
+    );
+
+    cpu_process: process(clock, reset)
+        variable opcode_id : std_logic_vector(6 downto 0);
+        variable opcode_ex : std_logic_vector(6 downto 0);
+        variable opcode_mem : std_logic_vector(6 downto 0);
+        variable funct3 : std_logic_vector(3 downto 0);
+        variable imm_raw : std_logic_vector(31 downto 0);
+        variable rd : std_logic_vector(6 downto 0)
+    begin
+        if reset = '1' then
+            pc <= 0;
+            mem_write <= '0';
+            mem_read <= '0';
+            mem_regwrite  <= '0';
+            wb_regwrite <= '0';
+            ex_mux_pc_select <= '1';
+
+        else
+            reg_write <= '0';
+            npc <= pc + 4;
+            if_pc_in <= npc; 
+
+            id_npc_in <= if_id_pc; --if/id output npc and id/ex input npc connected
+            ex_rd <= id_ex_rd; --id/ex output rd same as ex/mem input rd
+            mem_rd <= ex_mem_rd; --ex/mem output rd same as mem/wb input rd
+
+            ex_b <= id_ex_b; --id/ex B output same as ex/mem b input
+            ex_alu_out <= ex_mem_alu_out; --ex/mem aluout same as mem/wb alu value input
+
+        
+            
+
+            opcode_id  := if_id_ir(6 downto 0);
+            imm_raw := (others => '0');
+
+            case opcode_id is
+                when "0110011" => -- R-type
+                    id_mux_a_select <= '0'; -- op1 = rs1
+                    id_mux_b_select <= '1'; -- op2 = rs2 (register B)
+
+                when "0010011" | "0000011" | "1100111" => -- I-type ALU / load / JALR
+                    imm_raw(11 downto 0) := if_id_ir(31 downto 20);
+                    -- sign-extend from bit 11
+                    if if_id_ir(31) = '1' then
+                        imm_raw(31 downto 12) := (others => '1');
+                    end if;
+                    id_mux_a_select <= '0'; -- op1 = rs1
+                    id_mux_b_select <= '0'; -- op2 = imm
+
+                when "0100011" => -- S-type (store)
+                    imm_raw(11 downto 5) := if_id_ir(31 downto 25);
+                    imm_raw(4  downto 0) := if_id_ir(11 downto 7);
+                    if if_id_ir(31) = '1' then
+                        imm_raw(31 downto 12) := (others => '1');
+                    end if;
+                    id_mux_a_select <= '0'; -- op1 = rs1 (base address)
+                    id_mux_b_select <= '0'; -- op2 = imm (offset)
+
+                when "1100011" => -- B-type (branch)
+                    imm_raw(12)           := if_id_ir(31);
+                    imm_raw(10 downto 5)  := if_id_ir(30 downto 25);
+                    imm_raw(4  downto 1)  := if_id_ir(11 downto 8);
+                    imm_raw(11)           := if_id_ir(7);
+                    if if_id_ir(31) = '1' then
+                        imm_raw(31 downto 13) := (others => '1');
+                    end if;
+                    id_mux_a_select <= '1'; -- op1 = PC (branch target = PC + offset)
+                    id_mux_b_select <= '0'; -- op2 = imm
+
+                when "0110111" => -- U-type: LUI
+                    imm_raw(31 downto 12) := if_id_ir(31 downto 12);
+                    id_mux_a_select <= '0'; -- op1 doesn't matter for LUI
+                    id_mux_b_select <= '0'; -- op2 = imm (ALU returns op2 for LUI)
+
+                when "0010111" => -- U-type: AUIPC
+                    imm_raw(31 downto 12) := if_id_ir(31 downto 12);
+                    id_mux_a_select <= '1'; -- op1 = PC
+                    id_mux_b_select <= '0'; -- op2 = imm
+
+                when "1101111" => -- J-type: JAL
+                    imm_raw(20)           := if_id_ir(31);
+                    imm_raw(10 downto 1)  := if_id_ir(30 downto 21);
+                    imm_raw(11)           := if_id_ir(20);
+                    imm_raw(19 downto 12) := if_id_ir(19 downto 12);
+                    if if_id_ir(31) = '1' then
+                        imm_raw(31 downto 21) := (others => '1');
+                    end if;
+                    id_mux_a_select <= '1'; -- op1 = PC (target = PC + offset)
+                    id_mux_b_select <= '0'; -- op2 = imm
+
+                when others =>
+                    -- do nothing, should hopefully never get to this case
+                    null;
+            end case;
+
+            id_imm <= imm_raw;
+            id_rd <= if_id_ir(11 downto 7); --extract rd and set id/ex rd input
+                
+
+
+            opcode_ex  := id_ex_ir(6 downto 0);
+            funct3 := "0" & id_ex_ir(14 downto 12);
+            case opcode_ex is
+                when "1100011" => -- B-type branches
+                    case funct3 is
+                        when x"0" => -- BEQ: take if A = B
+                            if id_ex_a = id_ex_b then
+                                ex_mux_pc_select <= '0';
+                            else
+                                ex_mux_pc_select <= '1';
+                            end if;
+                        when x"1" => -- BNE: take if A /= B
+                            if id_ex_a /= id_ex_b then
+                                ex_mux_pc_select <= '0';
+                            else
+                                ex_mux_pc_select <= '1';
+                            end if;
+                        when x"4" => -- BLT (signed)
+                            if signed(id_ex_a) < signed(id_ex_b) then
+                                ex_mux_pc_select <= '0';
+                            else
+                                ex_mux_pc_select <= '1';
+                            end if;
+                        when x"5" => -- BGE (signed)
+                            if signed(id_ex_a) >= signed(id_ex_b) then
+                                ex_mux_pc_select <= '0';
+                            else
+                                ex_mux_pc_select <= '1';
+                            end if;
+                        when x"6" => -- BLTU (unsigned)
+                            if unsigned(id_ex_a) < unsigned(id_ex_b) then
+                                ex_mux_pc_select <= '0';
+                            else
+                                ex_mux_pc_select <= '1';
+                            end if;
+                        when x"7" => -- BGEU (unsigned)
+                            if unsigned(id_ex_a) >= unsigned(id_ex_b) then
+                                ex_mux_pc_select <= '0';
+                            else
+                                ex_mux_pc_select <= '1';
+                            end if;
+                        when others =>
+                            ex_mux_pc_select <= '1';
+                    end case;
+
+                when "1101111" | "1100111" => -- JAL / JALR: always jump
+                    ex_mux_pc_select <= '0'; -- use alu_out as next PC
+
+                when others =>
+                    ex_mux_pc_select <= '1'; -- sequential
+            end case;
+
+
+            opcode_mem  := ex_mem_ir(6 downto 0);
+            if opcode_mem = "0000011" then -- lw
+                mem_read <= '1';
+                mem_mux_write_select <= 1; -- write-back value loaded from memory
+                mem_regwrite  <= '1';
+            elsif opcode_mem = "0100011" then -- SW
+                mem_write  <= '1';
+                mem_regwrite  <= '0';
+            elsif opcode_mem = "1100011" then -- branch: no writeback
+                mem_regwrite  <= '0';
+            elsif opcode_mem = "1101111" or opcode_mem = "1100111" then -- jal or jalr
+                --this value below used to be 2, which seems correct but it is not covered in provided instructions, current value set to 1 as fallback
+                mem_mux_write_select <= 1;   -- write back return address (npc)
+                mem_regwrite       <= '1';
+            else -- R-type, I-type ALU, LUI, AUIPC
+                mem_mux_write_select <= 0;   -- write-back output of alu
+                mem_regwrite       <= '1';
+            end if;
+
+
+
+            
+            pc <= to_integer(unsigned(mux_pc)); --pc value is connected to the leftmost mux
+
+    end process;
+end arch;

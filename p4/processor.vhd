@@ -51,6 +51,78 @@ architecture arch of processor is
         );
     end component;
 
+    component if_id_reg is
+        port (
+            clk        : in  std_logic;
+            reset      : in  std_logic;
+            enable     : in  std_logic;
+            ir_in   : in  std_logic_vector(31 downto 0);
+            pc_in      : in  std_logic_vector(31 downto 0);
+            ir_out  : out std_logic_vector(31 downto 0);
+            pc_out     : out std_logic_vector(31 downto 0)
+        );
+    end component;
+
+    component id_ex_reg is
+        port (
+            clk	: in  std_logic;
+            reset	: in  std_logic;
+            enable	: in  std_logic;
+            npc_in	: in  std_logic_vector(31 downto 0);
+            a_in	: in  std_logic_vector(31 downto 0);
+            b_in	: in  std_logic_vector(31 downto 0);
+            immval_in	: in  std_logic_vector(31 downto 0);
+            rd_in	: in  std_logic_vector(11 downto 7);
+            ir_in   : in  std_logic_vector(31 downto 0);
+            mux_a_select_in   : in  std_logic;
+            mux_b_select_in   : in  std_logic;
+            npc_out	: out  std_logic_vector(31 downto 0);
+            a_out	: out  std_logic_vector(31 downto 0);
+            b_out	: out  std_logic_vector(31 downto 0);
+            immval_out	: out  std_logic_vector(31 downto 0);
+            rd_out	: out  std_logic_vector(11 downto 7);
+            ir_out  : out std_logic_vector(31 downto 0);
+            mux_a_select_out   : out  std_logic;
+            mux_b_select_out   : out  std_logic;
+        );
+    end component;
+
+    component ex_mem_reg is 
+        port (
+            clk	: in  std_logic;
+            reset	: in  std_logic;
+            enable	: in  std_logic;
+            mux_pc_select_in	: in  std_logic;
+            aluout_in	: in  std_logic_vector(31 downto 0);
+            b_in	: in  std_logic_vector(31 downto 0);
+            rd_in	: in  std_logic_vector(11 downto 7);
+            ir_in   : in  std_logic_vector(31 downto 0);
+            mux_pc_select_out	: out  std_logic;
+            aluout_out	: out  std_logic_vector(31 downto 0);
+            b_out	: out  std_logic_vector(31 downto 0);
+            rd_out	: out  std_logic_vector(11 downto 7);
+            ir_out   : out  std_logic_vector(31 downto 0)
+        );
+    end component;
+
+    component mem_wb_reg is
+        port (
+            clk	: in  std_logic;
+            reset	: in  std_logic;
+            enable	: in  std_logic;
+            regwrite_in	: in  std_logic;
+            mux_write_select_in	: in  std_logic;
+            aluout_in	: in  std_logic_vector(31 downto 0);
+            mem_ldr_result_in	: in  std_logic_vector(31 downto 0);
+            rd_in	: in  std_logic_vector(11 downto 7);
+            regwrite_out	: out  std_logic;
+            mux_write_select_out	: out  std_logic;
+            aluout_out	: out  std_logic_vector(31 downto 0);
+            mem_ldr_result_out	: out  std_logic_vector(31 downto 0);
+            rd_out	: out  std_logic_vector(11 downto 7)
+        );
+    end component;
+
     signal pc : integer := 0;           -- program counter
     signal npc : integer := 0;          -- new program counter value (pc + 4)
     signal pc_word : integer := 0;      -- pc / 4 (word index for instruction memory)
