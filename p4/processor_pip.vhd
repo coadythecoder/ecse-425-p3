@@ -373,11 +373,13 @@ begin
             if_pc_in <= npc; 
 
             id_npc_in <= if_id_pc; --if/id output npc and id/ex input npc connected
+            id_ir <= if_id_ir; --ir passed directly from if/id output to id/ex input
+            ex_ir <= id_ex_ir; --ir passed directly from id/ex output to ex/mem input
             ex_rd <= id_ex_rd; --id/ex output rd same as ex/mem input rd
             mem_rd <= ex_mem_rd; --ex/mem output rd same as mem/wb input rd
 
             ex_b <= id_ex_b; --id/ex B output same as ex/mem b input
-            ex_alu_out <= ex_mem_alu_out; --ex/mem aluout same as mem/wb alu value input
+            mem_alu_out <= ex_mem_alu_out; --ex/mem aluout same as mem/wb alu value input
 
         
             
