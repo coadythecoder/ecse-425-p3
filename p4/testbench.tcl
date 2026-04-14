@@ -1,18 +1,47 @@
-# Processor testbench runner
-quietly set LIB_NAME "work"
+# =============================================================================
+# testbench.tcl  --  Compile, inject program, run testbench.vhd
+# =============================================================================
 
-if {[file exists "$LIB_NAME"]} {
-    vdel -lib "$LIB_NAME" -all
+vlib work
+vmap work work
+
+# Compile all sources
+vcom -2008 intermediate_reg.vhd
+vcom -2008 memory.vhd
+vcom -2008 rf.vhd
+vcom -2008 alu.vhd
+vcom -2008 processor_pip.vhd
+vcom -2008 testbench.vhd
+
+#vsim -t 1ps -novopt work.testbench
+vsim work.testbench
+
+# -----------------------------------------------------------------------
+# Load the test program directly into instruction memory
+# Each line is a 32-bit binary instruction word
+# -----------------------------------------------------------------------
+set imem_path "/testbench/uut/instr_mem/ram_block"
+
+set program {
+    00000000010100000000000010010011
+    00000000001100000000000100010011
+    00000000001000001000000110110011
+    01000000001000001000001000110011
+    00000000101000000000001010010011
+    00000000010100000010000000100011
+    00000000000000000010001100000011
+    00000000000100001000010001100011
+    00000110001100000000001110010011
+    00000010101000000000010000010011
 }
-vlib "$LIB_NAME"
-vmap work "$LIB_NAME"
 
-vcom -2008 -work "$LIB_NAME" memory.vhd
-vcom -2008 -work "$LIB_NAME" alu.vhd
-vcom -2008 -work "$LIB_NAME" rf.vhd
-vcom -2008 -work "$LIB_NAME" processor.vhd
-vcom -2008 -work "$LIB_NAME" processor_tb.vhd
+set i 0
+foreach word $program {
+    force -deposit "$imem_path\($i\)" $word 0
+    incr i
+}
 
-vsim -lib "$LIB_NAME" processor_tb
-run -all
-quit -f
+# Run simulation (50 cycles is enough for the 10-instruction program to drain)
+run 50ns
+
+quit -sim

@@ -2,14 +2,14 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity processor is
+entity processor_pip is
     port(
         clock  : in std_logic;
         reset  : in std_logic
     );
-end processor;
+end processor_pip;
 
-architecture arch of processor is
+architecture arch of processor_pip is
     component memory is
         generic(
             ram_size : integer := 32768;
@@ -72,7 +72,7 @@ architecture arch of processor is
             a_in	: in  std_logic_vector(31 downto 0);
             b_in	: in  std_logic_vector(31 downto 0);
             immval_in	: in  std_logic_vector(31 downto 0);
-            rd_in	: in  std_logic_vector(11 downto 7);
+            rd_in	: in  std_logic_vector(4 downto 0);
             ir_in   : in  std_logic_vector(31 downto 0);
             mux_a_select_in   : in  std_logic;
             mux_b_select_in   : in  std_logic;
@@ -80,10 +80,10 @@ architecture arch of processor is
             a_out	: out  std_logic_vector(31 downto 0);
             b_out	: out  std_logic_vector(31 downto 0);
             immval_out	: out  std_logic_vector(31 downto 0);
-            rd_out	: out  std_logic_vector(11 downto 7);
+            rd_out	: out  std_logic_vector(4 downto 0);
             ir_out  : out std_logic_vector(31 downto 0);
             mux_a_select_out   : out  std_logic;
-            mux_b_select_out   : out  std_logic;
+            mux_b_select_out   : out  std_logic
         );
     end component;
 
@@ -95,12 +95,12 @@ architecture arch of processor is
             mux_pc_select_in	: in  std_logic;
             aluout_in	: in  std_logic_vector(31 downto 0);
             b_in	: in  std_logic_vector(31 downto 0);
-            rd_in	: in  std_logic_vector(11 downto 7);
+            rd_in	: in  std_logic_vector(4 downto 0);
             ir_in   : in  std_logic_vector(31 downto 0);
             mux_pc_select_out	: out  std_logic;
             aluout_out	: out  std_logic_vector(31 downto 0);
             b_out	: out  std_logic_vector(31 downto 0);
-            rd_out	: out  std_logic_vector(11 downto 7);
+            rd_out	: out  std_logic_vector(4 downto 0);
             ir_out   : out  std_logic_vector(31 downto 0)
         );
     end component;
@@ -111,18 +111,20 @@ architecture arch of processor is
             reset	: in  std_logic;
             enable	: in  std_logic;
             regwrite_in	: in  std_logic;
-            mux_write_select_in	: in  std_logic;
+            mux_write_select_in	: in  std_logic_vector(1 downto 0);
             aluout_in	: in  std_logic_vector(31 downto 0);
             mem_ldr_result_in	: in  std_logic_vector(31 downto 0);
-            rd_in	: in  std_logic_vector(11 downto 7);
+            rd_in	: in  std_logic_vector(4 downto 0);
             regwrite_out	: out  std_logic;
-            mux_write_select_out	: out  std_logic;
+            mux_write_select_out	: out  std_logic_vector(1 downto 0);
             aluout_out	: out  std_logic_vector(31 downto 0);
             mem_ldr_result_out	: out  std_logic_vector(31 downto 0);
-            rd_out	: out  std_logic_vector(11 downto 7)
+            rd_out	: out  std_logic_vector(4 downto 0)
         );
     end component;
 
+    --TODO: MANY OF THESE SIGNALS ARE LEFTOVER GLOBALSIGNALS FROM MULTISTAGE UNPIPELINED IMPLEMENTATIONS, 
+    --REMOVE UNUSED SIGNALS
     signal pc : integer := 0;           -- program counter
     signal npc : integer := 0;          -- new program counter value (pc + 4)
     signal pc_word : integer := 0;      -- pc / 4 (word index for instruction memory)
@@ -163,7 +165,7 @@ architecture arch of processor is
     signal id_a_data  : std_logic_vector(31 downto 0);
     signal id_b_data  : std_logic_vector(31 downto 0);
     signal id_imm     : std_logic_vector(31 downto 0);
-    signal id_rd      : std_logic_vector(11 downto 7);
+    signal id_rd      : std_logic_vector(4 downto 0);
     signal id_ir      : std_logic_vector(31 downto 0);
     signal id_mux_a_select : std_logic;
     signal id_mux_b_select : std_logic;
@@ -171,7 +173,7 @@ architecture arch of processor is
     signal id_ex_a    : std_logic_vector(31 downto 0);
     signal id_ex_b    : std_logic_vector(31 downto 0);
     signal id_ex_imm  : std_logic_vector(31 downto 0);
-    signal id_ex_rd   : std_logic_vector(11 downto 7);
+    signal id_ex_rd   : std_logic_vector(4 downto 0);
     signal id_ex_ir   : std_logic_vector(31 downto 0);
     signal id_ex_mux_a_select : std_logic;
     signal id_ex_mux_b_select : std_logic;
@@ -179,24 +181,25 @@ architecture arch of processor is
     signal ex_mux_pc_select : std_logic;
     signal ex_alu_out : std_logic_vector(31 downto 0);
     signal ex_b       : std_logic_vector(31 downto 0);
-    signal ex_rd      : std_logic_vector(11 downto 7);
+    signal ex_rd      : std_logic_vector(4 downto 0);
     signal ex_ir      : std_logic_vector(31 downto 0);
     signal ex_mem_mux_pc_select : std_logic;
     signal ex_mem_alu_out       : std_logic_vector(31 downto 0);
+    signal ex_mem_alu_out_int : integer range 0 to 32767; --memory takes int as address input
     signal ex_mem_b             : std_logic_vector(31 downto 0);
-    signal ex_mem_rd            : std_logic_vector(11 downto 7);
+    signal ex_mem_rd            : std_logic_vector(4 downto 0);
     signal ex_mem_ir            : std_logic_vector(31 downto 0);
 
     signal mem_regwrite        : std_logic;
-    signal mem_mux_write_select : std_logic;
+    signal mem_mux_write_select : std_logic_vector(1 downto 0);
     signal mem_alu_out   : std_logic_vector(31 downto 0);
     signal mem_data_out  : std_logic_vector(31 downto 0);
-    signal mem_rd        : std_logic_vector(11 downto 7);
+    signal mem_rd        : std_logic_vector(4 downto 0);
     signal wb_regwrite        : std_logic;
     signal wb_mux_write_select : std_logic_vector(1 downto 0);
     signal wb_alu_out         : std_logic_vector(31 downto 0);
     signal wb_mem_data        : std_logic_vector(31 downto 0);
-    signal wb_rd              : std_logic_vector(11 downto 7);
+    signal wb_rd              : std_logic_vector(4 downto 0);
 
 begin
     -- Combinatorial conversions
@@ -206,21 +209,21 @@ begin
 
     -- Muxes combinatorial
     -- mux_a: '0' => rs1 register, '1' => current PC (for branch/JAL targets)
-    mux_a <= id_ex_a when id_ex_mux_a_select = '0' else std_logic_vector(to_unsigned(id_ex_npc, 32));
+    mux_a <= id_ex_a when id_ex_mux_a_select = '0' else id_ex_npc;
     -- mux_b: '0' => immediate, '1' => rs2 register
     mux_b <= id_ex_imm when id_ex_mux_b_select = '0' else id_ex_b;
     -- mux_pc: '0' => alu_out (branch/jump target), '1' => npc (fall-through)
-    mux_pc <= ex_mem_alu_out when ex_mem_mux_pc_select = '0' else std_logic_vector(to_unsigned(pc + 4, 32)); --does pc+4 produce correct addr?
+    mux_pc <= ex_mem_alu_out when ex_mem_mux_pc_select = '0' else std_logic_vector(to_unsigned(npc, 32)); --does pc+4 produce correct addr?
     -- mux_write: 0 => alu_out, 1 => lmd (loaded value), 2 => npc (JAL return addr)
-    mux_write <= wb_alu_out when mux_write_select = 0
-            else wb_mem_data    when mux_write_select = 1
-            else std_logic_vector(to_unsigned(id_ex_npc, 32));
+    mux_write <= wb_alu_out when wb_mux_write_select = "00"
+            else wb_mem_data    when wb_mux_write_select = "01"
+            else id_ex_npc; --this line is for jal where pc+4 is written, is it correct?
 
     -- Data memory (byte-addressed in RISC-V; word-indexed here via data_addr = alu_out/4)
     data_mem : memory port map(
         clock => clock,
         writedata => ex_mem_b, --data to be stored into mem is the ex/mem output b
-        address => ex_mem_alu_out, --adress is the ex/mem aluout output
+        address => ex_mem_alu_out_int, --adress is the ex/mem aluout output
         memwrite => mem_write,
         memread => mem_read,
         readdata => mem_data_out, --output of data mem is connected to input in mem/wb
@@ -357,7 +360,7 @@ begin
         variable opcode_mem : std_logic_vector(6 downto 0);
         variable funct3 : std_logic_vector(3 downto 0);
         variable imm_raw : std_logic_vector(31 downto 0);
-        variable rd : std_logic_vector(6 downto 0)
+        variable rd : std_logic_vector(6 downto 0);
     begin
         if reset = '1' then
             pc <= 0;
@@ -370,7 +373,8 @@ begin
         else
             reg_write <= '0';
             npc <= pc + 4;
-            if_pc_in <= npc; 
+            --if_pc_in <= std_logic_vector(to_unsigned(npc, 32));
+            if_pc_in <= mux_pc; --if/id npc input connected to pc mux output
 
             id_npc_in <= if_id_pc; --if/id output npc and id/ex input npc connected
             id_ir <= if_id_ir; --ir passed directly from if/id output to id/ex input
@@ -380,6 +384,8 @@ begin
 
             ex_b <= id_ex_b; --id/ex B output same as ex/mem b input
             mem_alu_out <= ex_mem_alu_out; --ex/mem aluout same as mem/wb alu value input
+
+            ex_mem_alu_out_int <= to_integer(unsigned(ex_mem_alu_out)); --logic to convert 32b addr to int for data mem input
 
         
             
@@ -508,7 +514,7 @@ begin
             opcode_mem  := ex_mem_ir(6 downto 0);
             if opcode_mem = "0000011" then -- lw
                 mem_read <= '1';
-                mem_mux_write_select <= 1; -- write-back value loaded from memory
+                mem_mux_write_select <= "01"; -- write-back value loaded from memory
                 mem_regwrite  <= '1';
             elsif opcode_mem = "0100011" then -- SW
                 mem_write  <= '1';
@@ -516,11 +522,10 @@ begin
             elsif opcode_mem = "1100011" then -- branch: no writeback
                 mem_regwrite  <= '0';
             elsif opcode_mem = "1101111" or opcode_mem = "1100111" then -- jal or jalr
-                --this value below used to be 2, which seems correct but it is not covered in provided instructions, current value set to 1 as fallback
-                mem_mux_write_select <= 1;   -- write back return address (npc)
+                mem_mux_write_select <= "10";   -- write back return address (npc)
                 mem_regwrite       <= '1';
             else -- R-type, I-type ALU, LUI, AUIPC
-                mem_mux_write_select <= 0;   -- write-back output of alu
+                mem_mux_write_select <= "00";   -- write-back output of alu
                 mem_regwrite       <= '1';
             end if;
 
@@ -528,6 +533,7 @@ begin
 
             
             pc <= to_integer(unsigned(mux_pc)); --pc value is connected to the leftmost mux
-
+        end if;
     end process;
+    
 end arch;
