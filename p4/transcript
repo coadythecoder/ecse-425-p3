@@ -1,102 +1,1828 @@
-# do testbench.tcl
-# Model Technology ModelSim - Intel FPGA Edition vmap 2020.1 Lib Mapping Utility 2020.02 Feb 28 2020
-# vmap work work 
-# Modifying modelsim.ini
+
+source testbench.tcl
 # Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
-# Start time: 12:28:12 on Apr 12,2026
-# vcom -2008 -work work memory.vhd 
+# Start time: 00:58:03 on Apr 14,2026
+# vcom -reportprogress 300 -2008 intermediate_reg.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity if_id_reg
+# -- Compiling architecture behavioral of if_id_reg
+# -- Compiling entity id_ex_reg
+# -- Compiling architecture behavioral of id_ex_reg
+# -- Compiling entity ex_mem_reg
+# -- Compiling architecture behavioral of ex_mem_reg
+# -- Compiling entity mem_wb_reg
+# -- Compiling architecture behavioral of mem_wb_reg
+# End time: 00:58:03 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 00:58:03 on Apr 14,2026
+# vcom -reportprogress 300 -2008 memory.vhd 
 # -- Loading package STANDARD
 # -- Loading package TEXTIO
 # -- Loading package std_logic_1164
 # -- Loading package NUMERIC_STD
 # -- Compiling entity memory
 # -- Compiling architecture rtl of memory
-# End time: 12:28:12 on Apr 12,2026, Elapsed time: 0:00:00
+# End time: 00:58:03 on Apr 14,2026, Elapsed time: 0:00:00
 # Errors: 0, Warnings: 0
 # Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
-# Start time: 12:28:12 on Apr 12,2026
-# vcom -2008 -work work alu.vhd 
-# -- Loading package STANDARD
-# -- Loading package TEXTIO
-# -- Loading package std_logic_1164
-# -- Loading package NUMERIC_STD
-# -- Compiling entity alu
-# -- Compiling architecture arch of alu
-# End time: 12:28:12 on Apr 12,2026, Elapsed time: 0:00:00
-# Errors: 0, Warnings: 0
-# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
-# Start time: 12:28:12 on Apr 12,2026
-# vcom -2008 -work work rf.vhd 
+# Start time: 00:58:03 on Apr 14,2026
+# vcom -reportprogress 300 -2008 rf.vhd 
 # -- Loading package STANDARD
 # -- Loading package TEXTIO
 # -- Loading package std_logic_1164
 # -- Loading package NUMERIC_STD
 # -- Compiling entity rf
 # -- Compiling architecture arch of rf
-# End time: 12:28:12 on Apr 12,2026, Elapsed time: 0:00:00
+# End time: 00:58:03 on Apr 14,2026, Elapsed time: 0:00:00
 # Errors: 0, Warnings: 0
 # Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
-# Start time: 12:28:12 on Apr 12,2026
-# vcom -2008 -work work processor.vhd 
+# Start time: 00:58:03 on Apr 14,2026
+# vcom -reportprogress 300 -2008 alu.vhd 
 # -- Loading package STANDARD
 # -- Loading package TEXTIO
 # -- Loading package std_logic_1164
 # -- Loading package NUMERIC_STD
-# -- Compiling entity processor
-# -- Compiling architecture arch of processor
-# End time: 12:28:12 on Apr 12,2026, Elapsed time: 0:00:00
+# -- Compiling entity alu
+# -- Compiling architecture arch of alu
+# End time: 00:58:03 on Apr 14,2026, Elapsed time: 0:00:00
 # Errors: 0, Warnings: 0
 # Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
-# Start time: 12:28:12 on Apr 12,2026
-# vcom -2008 -work work processor_tb.vhd 
+# Start time: 00:58:03 on Apr 14,2026
+# vcom -reportprogress 300 -2008 processor_pip.vhd 
 # -- Loading package STANDARD
 # -- Loading package TEXTIO
 # -- Loading package std_logic_1164
 # -- Loading package NUMERIC_STD
-# -- Loading package std_logic_textio
-# -- Compiling entity processor_tb
-# -- Compiling architecture behavior of processor_tb
-# -- Loading package ENV
-# End time: 12:28:12 on Apr 12,2026, Elapsed time: 0:00:00
+# -- Compiling entity processor_pip
+# -- Compiling architecture arch of processor_pip
+# End time: 00:58:03 on Apr 14,2026, Elapsed time: 0:00:00
 # Errors: 0, Warnings: 0
-# vsim -lib work processor_tb 
-# Start time: 12:28:12 on Apr 12,2026
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 00:58:03 on Apr 14,2026
+# vcom -reportprogress 300 -2008 testbench.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity testbench
+# -- Compiling architecture sim of testbench
+# End time: 00:58:03 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vsim work.testbench 
+# Start time: 00:58:03 on Apr 14,2026
 # Loading std.standard
 # Loading std.textio(body)
 # Loading ieee.std_logic_1164(body)
 # Loading ieee.numeric_std(body)
-# Loading ieee.std_logic_textio(body)
-# Loading std.env(body)
-# Loading work.processor_tb(behavior)
-# Loading work.processor(arch)
+# Loading work.testbench(sim)
+# Loading work.processor_pip(arch)
 # Loading work.memory(rtl)
 # Loading work.rf(arch)
 # Loading work.alu(arch)
-# ** Warning: (vsim-8523) Cannot reference the signal "/processor_tb/dut/pc" before it has been elaborated.
-#    Time: 0 ps  Iteration: 0  Instance: /processor_tb File: processor_tb.vhd
-# ** Warning: (vsim-8523) Cannot reference the signal "/processor_tb/dut/instr_mem/ram_block" before it has been elaborated.
-#    Time: 0 ps  Iteration: 0  Instance: /processor_tb File: processor_tb.vhd
-# ** Note: Processor tests start
-#    Time: 0 ps  Iteration: 0  Instance: /processor_tb
+# Loading work.if_id_reg(behavioral)
+# Loading work.id_ex_reg(behavioral)
+# Loading work.ex_mem_reg(behavioral)
+# Loading work.mem_wb_reg(behavioral)
 # ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
-#    Time: 0 ps  Iteration: 0  Instance: /processor_tb/dut/my_alu
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut/my_alu
 # ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
-#    Time: 0 ps  Iteration: 0  Instance: /processor_tb/dut/reg_file
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut/reg_file
 # ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
-#    Time: 0 ps  Iteration: 0  Instance: /processor_tb/dut/reg_file
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut/reg_file
 # ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
-#    Time: 0 ps  Iteration: 0  Instance: /processor_tb/dut
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut
 # ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
-#    Time: 0 ps  Iteration: 1  Instance: /processor_tb/dut/my_alu
+#    Time: 0 ps  Iteration: 1  Instance: /testbench/uut/reg_file
 # ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
-#    Time: 0 ps  Iteration: 2  Instance: /processor_tb/dut/my_alu
+#    Time: 0 ps  Iteration: 1  Instance: /testbench/uut/reg_file
 # ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
-#    Time: 1 ns  Iteration: 2  Instance: /processor_tb/dut/my_alu
+#    Time: 0 ps  Iteration: 2  Instance: /testbench/uut/my_alu
+# End time: 00:58:08 on Apr 14,2026, Elapsed time: 0:00:05
+# Errors: 0, Warnings: 8
+source testbench.tcl
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:01:09 on Apr 14,2026
+# vcom -reportprogress 300 -2008 intermediate_reg.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity if_id_reg
+# -- Compiling architecture behavioral of if_id_reg
+# -- Compiling entity id_ex_reg
+# -- Compiling architecture behavioral of id_ex_reg
+# -- Compiling entity ex_mem_reg
+# -- Compiling architecture behavioral of ex_mem_reg
+# -- Compiling entity mem_wb_reg
+# -- Compiling architecture behavioral of mem_wb_reg
+# End time: 01:01:09 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:01:09 on Apr 14,2026
+# vcom -reportprogress 300 -2008 memory.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity memory
+# -- Compiling architecture rtl of memory
+# End time: 01:01:09 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:01:09 on Apr 14,2026
+# vcom -reportprogress 300 -2008 rf.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity rf
+# -- Compiling architecture arch of rf
+# End time: 01:01:09 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:01:09 on Apr 14,2026
+# vcom -reportprogress 300 -2008 alu.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity alu
+# -- Compiling architecture arch of alu
+# End time: 01:01:09 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:01:09 on Apr 14,2026
+# vcom -reportprogress 300 -2008 processor_pip.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity processor_pip
+# -- Compiling architecture arch of processor_pip
+# End time: 01:01:09 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:01:09 on Apr 14,2026
+# vcom -reportprogress 300 -2008 testbench.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity testbench
+# -- Compiling architecture sim of testbench
+# ** Error: testbench.vhd(195): (vcom-1307) External name must denote an entire object, not a slice or indexed name of an object.
+# ** Error: testbench.vhd(196): (vcom-1307) External name must denote an entire object, not a slice or indexed name of an object.
+# ** Error: testbench.vhd(197): (vcom-1307) External name must denote an entire object, not a slice or indexed name of an object.
+# ** Error: testbench.vhd(198): (vcom-1307) External name must denote an entire object, not a slice or indexed name of an object.
+# ** Error: testbench.vhd(199): (vcom-1307) External name must denote an entire object, not a slice or indexed name of an object.
+# ** Error: testbench.vhd(200): (vcom-1307) External name must denote an entire object, not a slice or indexed name of an object.
+# ** Error: testbench.vhd(201): (vcom-1307) External name must denote an entire object, not a slice or indexed name of an object.
+# ** Note: testbench.vhd(207): VHDL Compiler exiting
+# End time: 01:01:09 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 7, Warnings: 0
+# C:/intelFPGA/20.1/modelsim_ase/win32aloem/vcom failed.
+source testbench.tcl
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:04:06 on Apr 14,2026
+# vcom -reportprogress 300 -2008 intermediate_reg.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity if_id_reg
+# -- Compiling architecture behavioral of if_id_reg
+# -- Compiling entity id_ex_reg
+# -- Compiling architecture behavioral of id_ex_reg
+# -- Compiling entity ex_mem_reg
+# -- Compiling architecture behavioral of ex_mem_reg
+# -- Compiling entity mem_wb_reg
+# -- Compiling architecture behavioral of mem_wb_reg
+# End time: 01:04:06 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:04:06 on Apr 14,2026
+# vcom -reportprogress 300 -2008 memory.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity memory
+# -- Compiling architecture rtl of memory
+# End time: 01:04:06 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:04:06 on Apr 14,2026
+# vcom -reportprogress 300 -2008 rf.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity rf
+# -- Compiling architecture arch of rf
+# End time: 01:04:06 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:04:06 on Apr 14,2026
+# vcom -reportprogress 300 -2008 alu.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity alu
+# -- Compiling architecture arch of alu
+# End time: 01:04:07 on Apr 14,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:04:07 on Apr 14,2026
+# vcom -reportprogress 300 -2008 processor_pip.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity processor_pip
+# -- Compiling architecture arch of processor_pip
+# End time: 01:04:07 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:04:07 on Apr 14,2026
+# vcom -reportprogress 300 -2008 testbench.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity testbench
+# -- Compiling architecture sim of testbench
+# End time: 01:04:07 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vsim work.testbench 
+# Start time: 01:04:07 on Apr 14,2026
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.numeric_std(body)
+# Loading work.testbench(sim)
+# Loading work.processor_pip(arch)
+# Loading work.memory(rtl)
+# Loading work.rf(arch)
+# Loading work.alu(arch)
+# Loading work.if_id_reg(behavioral)
+# Loading work.id_ex_reg(behavioral)
+# Loading work.ex_mem_reg(behavioral)
+# Loading work.mem_wb_reg(behavioral)
+# ** Error: (vsim-3043) Unresolved reference to 'registers' in testbench.uut.reg_file.registers.
+#    Time: 0 ps  Iteration: 0  Instance: /testbench File: testbench.vhd Line: 122
+# ** Error (suppressible): (vsim-FLI-3155) The FLI is not enabled in this version of ModelSim.
+# ** Error: (vsim-3043) Unresolved reference to 'registers' in testbench.uut.reg_file.registers.
+#    Time: 0 ps  Iteration: 0  Instance: /testbench File: testbench.vhd Line: 122
+# ** Error (suppressible): (vsim-FLI-3155) The FLI is not enabled in this version of ModelSim.
+# Error loading design
+# End time: 01:04:07 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 4, Warnings: 1
+# Error while executing: source
+# Usage: source <fileName>
+show signals -r /testbench/uut/*
+# ** UI-Msg: (vish-4001) Incorrect number of arguments.
+# Usage: show [-all] [<path>]
+show signals -r /*
+# ** UI-Msg: (vish-4001) Incorrect number of arguments.
+# Usage: show [-all] [<path>]
+show -r /testbench/uut
+# ** UI-Msg: (vish-4000) A design must be loaded before the "show" command can be used.
+# 
+source testbench.tcl
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:10:00 on Apr 14,2026
+# vcom -reportprogress 300 -2008 intermediate_reg.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity if_id_reg
+# -- Compiling architecture behavioral of if_id_reg
+# -- Compiling entity id_ex_reg
+# -- Compiling architecture behavioral of id_ex_reg
+# -- Compiling entity ex_mem_reg
+# -- Compiling architecture behavioral of ex_mem_reg
+# -- Compiling entity mem_wb_reg
+# -- Compiling architecture behavioral of mem_wb_reg
+# End time: 01:10:00 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:10:00 on Apr 14,2026
+# vcom -reportprogress 300 -2008 memory.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity memory
+# -- Compiling architecture rtl of memory
+# End time: 01:10:00 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:10:00 on Apr 14,2026
+# vcom -reportprogress 300 -2008 rf.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity rf
+# -- Compiling architecture arch of rf
+# End time: 01:10:00 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:10:00 on Apr 14,2026
+# vcom -reportprogress 300 -2008 alu.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity alu
+# -- Compiling architecture arch of alu
+# End time: 01:10:00 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:10:00 on Apr 14,2026
+# vcom -reportprogress 300 -2008 processor_pip.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity processor_pip
+# -- Compiling architecture arch of processor_pip
+# End time: 01:10:01 on Apr 14,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:10:01 on Apr 14,2026
+# vcom -reportprogress 300 -2008 testbench.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity testbench
+# -- Compiling architecture sim of testbench
+# End time: 01:10:01 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vsim work.testbench 
+# Start time: 01:10:01 on Apr 14,2026
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.numeric_std(body)
+# Loading work.testbench(sim)
+# Loading work.processor_pip(arch)
+# Loading work.memory(rtl)
+# Loading work.rf(arch)
+# Loading work.alu(arch)
+# Loading work.if_id_reg(behavioral)
+# Loading work.id_ex_reg(behavioral)
+# Loading work.ex_mem_reg(behavioral)
+# Loading work.mem_wb_reg(behavioral)
+# ** Warning: (vsim-8512) Array direction TO specified for "testbench.uut.reg_file.my_rf" at index #1 is different from actual direction DOWNTO.
+#    Time: 0 ps  Iteration: 0  Instance: /testbench File: testbench.vhd Line: 122
+# ** Warning: (vsim-8513) Array left bound 0 specified for "testbench.uut.reg_file.my_rf" at index #1 is different from actual left bound 31.
+#    Time: 0 ps  Iteration: 0  Instance: /testbench File: testbench.vhd Line: 122
+# ** Warning: (vsim-8514) Array right bound 31 specified for "testbench.uut.reg_file.my_rf" at index #1 is different from actual right bound 0.
+#    Time: 0 ps  Iteration: 0  Instance: /testbench File: testbench.vhd Line: 122
+# ** Warning: (vsim-8512) Array direction TO specified for "testbench.uut.reg_file.my_rf" at index #1 is different from actual direction DOWNTO.
+#    Time: 0 ps  Iteration: 0  Instance: /testbench File: testbench.vhd Line: 122
+# ** Warning: (vsim-8513) Array left bound 0 specified for "testbench.uut.reg_file.my_rf" at index #1 is different from actual left bound 31.
+#    Time: 0 ps  Iteration: 0  Instance: /testbench File: testbench.vhd Line: 122
+# ** Warning: (vsim-8514) Array right bound 31 specified for "testbench.uut.reg_file.my_rf" at index #1 is different from actual right bound 0.
+#    Time: 0 ps  Iteration: 0  Instance: /testbench File: testbench.vhd Line: 122
+# ** Warning: (vsim-8523) Cannot reference the signal "/testbench/uut/reg_file/my_rf" before it has been elaborated.
+#    Time: 0 ps  Iteration: 0  Instance: /testbench File: testbench.vhd
+# ** Warning: (vsim-8512) Array direction TO specified for "testbench.uut.reg_file.my_rf" at index #1 is different from actual direction DOWNTO.
+#    Time: 0 ps  Iteration: 0  Instance: /testbench File: testbench.vhd Line: 122
+# ** Warning: (vsim-8513) Array left bound 0 specified for "testbench.uut.reg_file.my_rf" at index #1 is different from actual left bound 31.
+#    Time: 0 ps  Iteration: 0  Instance: /testbench File: testbench.vhd Line: 122
+# ** Warning: (vsim-8514) Array right bound 31 specified for "testbench.uut.reg_file.my_rf" at index #1 is different from actual right bound 0.
+#    Time: 0 ps  Iteration: 0  Instance: /testbench File: testbench.vhd Line: 122
+# ** Warning: (vsim-8512) Array direction TO specified for "testbench.uut.reg_file.my_rf" at index #1 is different from actual direction DOWNTO.
+#    Time: 0 ps  Iteration: 0  Instance: /testbench File: testbench.vhd Line: 122
+# ** Warning: (vsim-8513) Array left bound 0 specified for "testbench.uut.reg_file.my_rf" at index #1 is different from actual left bound 31.
+#    Time: 0 ps  Iteration: 0  Instance: /testbench File: testbench.vhd Line: 122
+# ** Warning: (vsim-8514) Array right bound 31 specified for "testbench.uut.reg_file.my_rf" at index #1 is different from actual right bound 0.
+#    Time: 0 ps  Iteration: 0  Instance: /testbench File: testbench.vhd Line: 122
 # ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
-#    Time: 1 ns  Iteration: 3  Instance: /processor_tb/dut
-# ** Note: Processor tests complete
-#    Time: 100035 ns  Iteration: 1  Instance: /processor_tb
-# Break in Process test_process at processor_tb.vhd line 106
-# Stopped at processor_tb.vhd line 106
-# End time: 12:28:13 on Apr 12,2026, Elapsed time: 0:00:01
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut/my_alu
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut/reg_file
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut/reg_file
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 1  Instance: /testbench/uut/reg_file
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 1  Instance: /testbench/uut/reg_file
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 2  Instance: /testbench/uut/my_alu
+# End time: 01:10:04 on Apr 14,2026, Elapsed time: 0:00:03
+# Errors: 0, Warnings: 21
+source testbench.tcl
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:11:29 on Apr 14,2026
+# vcom -reportprogress 300 -2008 intermediate_reg.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity if_id_reg
+# -- Compiling architecture behavioral of if_id_reg
+# -- Compiling entity id_ex_reg
+# -- Compiling architecture behavioral of id_ex_reg
+# -- Compiling entity ex_mem_reg
+# -- Compiling architecture behavioral of ex_mem_reg
+# -- Compiling entity mem_wb_reg
+# -- Compiling architecture behavioral of mem_wb_reg
+# End time: 01:11:29 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:11:29 on Apr 14,2026
+# vcom -reportprogress 300 -2008 memory.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity memory
+# -- Compiling architecture rtl of memory
+# End time: 01:11:29 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:11:29 on Apr 14,2026
+# vcom -reportprogress 300 -2008 rf.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity rf
+# -- Compiling architecture arch of rf
+# End time: 01:11:29 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:11:29 on Apr 14,2026
+# vcom -reportprogress 300 -2008 alu.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity alu
+# -- Compiling architecture arch of alu
+# End time: 01:11:29 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:11:29 on Apr 14,2026
+# vcom -reportprogress 300 -2008 processor_pip.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity processor_pip
+# -- Compiling architecture arch of processor_pip
+# End time: 01:11:29 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:11:29 on Apr 14,2026
+# vcom -reportprogress 300 -2008 testbench.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity testbench
+# -- Compiling architecture sim of testbench
+# End time: 01:11:29 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vsim work.testbench 
+# Start time: 01:11:29 on Apr 14,2026
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.numeric_std(body)
+# Loading work.testbench(sim)
+# Loading work.processor_pip(arch)
+# Loading work.memory(rtl)
+# Loading work.rf(arch)
+# Loading work.alu(arch)
+# Loading work.if_id_reg(behavioral)
+# Loading work.id_ex_reg(behavioral)
+# Loading work.ex_mem_reg(behavioral)
+# Loading work.mem_wb_reg(behavioral)
+# ** Warning: (vsim-8512) Array direction TO specified for "testbench.uut.reg_file.my_rf" at index #1 is different from actual direction DOWNTO.
+#    Time: 0 ps  Iteration: 0  Instance: /testbench File: testbench.vhd Line: 122
+# ** Warning: (vsim-8513) Array left bound 0 specified for "testbench.uut.reg_file.my_rf" at index #1 is different from actual left bound 31.
+#    Time: 0 ps  Iteration: 0  Instance: /testbench File: testbench.vhd Line: 122
+# ** Warning: (vsim-8514) Array right bound 31 specified for "testbench.uut.reg_file.my_rf" at index #1 is different from actual right bound 0.
+#    Time: 0 ps  Iteration: 0  Instance: /testbench File: testbench.vhd Line: 122
+# ** Warning: (vsim-8512) Array direction TO specified for "testbench.uut.reg_file.my_rf" at index #1 is different from actual direction DOWNTO.
+#    Time: 0 ps  Iteration: 0  Instance: /testbench File: testbench.vhd Line: 122
+# ** Warning: (vsim-8513) Array left bound 0 specified for "testbench.uut.reg_file.my_rf" at index #1 is different from actual left bound 31.
+#    Time: 0 ps  Iteration: 0  Instance: /testbench File: testbench.vhd Line: 122
+# ** Warning: (vsim-8514) Array right bound 31 specified for "testbench.uut.reg_file.my_rf" at index #1 is different from actual right bound 0.
+#    Time: 0 ps  Iteration: 0  Instance: /testbench File: testbench.vhd Line: 122
+# ** Warning: (vsim-8523) Cannot reference the signal "/testbench/uut/reg_file/my_rf" before it has been elaborated.
+#    Time: 0 ps  Iteration: 0  Instance: /testbench File: testbench.vhd
+# ** Warning: (vsim-8512) Array direction TO specified for "testbench.uut.reg_file.my_rf" at index #1 is different from actual direction DOWNTO.
+#    Time: 0 ps  Iteration: 0  Instance: /testbench File: testbench.vhd Line: 122
+# ** Warning: (vsim-8513) Array left bound 0 specified for "testbench.uut.reg_file.my_rf" at index #1 is different from actual left bound 31.
+#    Time: 0 ps  Iteration: 0  Instance: /testbench File: testbench.vhd Line: 122
+# ** Warning: (vsim-8514) Array right bound 31 specified for "testbench.uut.reg_file.my_rf" at index #1 is different from actual right bound 0.
+#    Time: 0 ps  Iteration: 0  Instance: /testbench File: testbench.vhd Line: 122
+# ** Warning: (vsim-8512) Array direction TO specified for "testbench.uut.reg_file.my_rf" at index #1 is different from actual direction DOWNTO.
+#    Time: 0 ps  Iteration: 0  Instance: /testbench File: testbench.vhd Line: 122
+# ** Warning: (vsim-8513) Array left bound 0 specified for "testbench.uut.reg_file.my_rf" at index #1 is different from actual left bound 31.
+#    Time: 0 ps  Iteration: 0  Instance: /testbench File: testbench.vhd Line: 122
+# ** Warning: (vsim-8514) Array right bound 31 specified for "testbench.uut.reg_file.my_rf" at index #1 is different from actual right bound 0.
+#    Time: 0 ps  Iteration: 0  Instance: /testbench File: testbench.vhd Line: 122
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut/my_alu
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut/reg_file
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut/reg_file
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 1  Instance: /testbench/uut/reg_file
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 1  Instance: /testbench/uut/reg_file
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 2  Instance: /testbench/uut/my_alu
+# End time: 01:11:33 on Apr 14,2026, Elapsed time: 0:00:04
+# Errors: 0, Warnings: 21
+source testbench.tcl
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:12:23 on Apr 14,2026
+# vcom -reportprogress 300 -2008 intermediate_reg.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity if_id_reg
+# -- Compiling architecture behavioral of if_id_reg
+# -- Compiling entity id_ex_reg
+# -- Compiling architecture behavioral of id_ex_reg
+# -- Compiling entity ex_mem_reg
+# -- Compiling architecture behavioral of ex_mem_reg
+# -- Compiling entity mem_wb_reg
+# -- Compiling architecture behavioral of mem_wb_reg
+# End time: 01:12:23 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:12:23 on Apr 14,2026
+# vcom -reportprogress 300 -2008 memory.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity memory
+# -- Compiling architecture rtl of memory
+# End time: 01:12:23 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:12:23 on Apr 14,2026
+# vcom -reportprogress 300 -2008 rf.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity rf
+# -- Compiling architecture arch of rf
+# End time: 01:12:23 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:12:23 on Apr 14,2026
+# vcom -reportprogress 300 -2008 alu.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity alu
+# -- Compiling architecture arch of alu
+# End time: 01:12:24 on Apr 14,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:12:24 on Apr 14,2026
+# vcom -reportprogress 300 -2008 processor_pip.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity processor_pip
+# -- Compiling architecture arch of processor_pip
+# End time: 01:12:24 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:12:24 on Apr 14,2026
+# vcom -reportprogress 300 -2008 testbench.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity testbench
+# -- Compiling architecture sim of testbench
+# ** Warning: testbench.vhd(120): (vcom-1246) Range 31 to 0 is null.
+# ** Error: testbench.vhd(199): (vcom-1152) Index value 1 is out of index range 31 to 0 (null array) of work.testbench(sim).reg_array_t.
+# ** Error: testbench.vhd(200): (vcom-1152) Index value 2 is out of index range 31 to 0 (null array) of work.testbench(sim).reg_array_t.
+# ** Error: testbench.vhd(201): (vcom-1152) Index value 3 is out of index range 31 to 0 (null array) of work.testbench(sim).reg_array_t.
+# ** Error: testbench.vhd(202): (vcom-1152) Index value 4 is out of index range 31 to 0 (null array) of work.testbench(sim).reg_array_t.
+# ** Error: testbench.vhd(203): (vcom-1152) Index value 6 is out of index range 31 to 0 (null array) of work.testbench(sim).reg_array_t.
+# ** Error: testbench.vhd(204): (vcom-1152) Index value 7 is out of index range 31 to 0 (null array) of work.testbench(sim).reg_array_t.
+# ** Error: testbench.vhd(205): (vcom-1152) Index value 8 is out of index range 31 to 0 (null array) of work.testbench(sim).reg_array_t.
+# ** Note: testbench.vhd(209): VHDL Compiler exiting
+# End time: 01:12:24 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 7, Warnings: 1
+# C:/intelFPGA/20.1/modelsim_ase/win32aloem/vcom failed.
+source testbench.tcl
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:12:56 on Apr 14,2026
+# vcom -reportprogress 300 -2008 intermediate_reg.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity if_id_reg
+# -- Compiling architecture behavioral of if_id_reg
+# -- Compiling entity id_ex_reg
+# -- Compiling architecture behavioral of id_ex_reg
+# -- Compiling entity ex_mem_reg
+# -- Compiling architecture behavioral of ex_mem_reg
+# -- Compiling entity mem_wb_reg
+# -- Compiling architecture behavioral of mem_wb_reg
+# End time: 01:12:56 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:12:56 on Apr 14,2026
+# vcom -reportprogress 300 -2008 memory.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity memory
+# -- Compiling architecture rtl of memory
+# End time: 01:12:56 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:12:56 on Apr 14,2026
+# vcom -reportprogress 300 -2008 rf.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity rf
+# -- Compiling architecture arch of rf
+# End time: 01:12:56 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:12:56 on Apr 14,2026
+# vcom -reportprogress 300 -2008 alu.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity alu
+# -- Compiling architecture arch of alu
+# End time: 01:12:56 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:12:56 on Apr 14,2026
+# vcom -reportprogress 300 -2008 processor_pip.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity processor_pip
+# -- Compiling architecture arch of processor_pip
+# End time: 01:12:56 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:12:56 on Apr 14,2026
+# vcom -reportprogress 300 -2008 testbench.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity testbench
+# -- Compiling architecture sim of testbench
+# ** Warning: testbench.vhd(120): (vcom-1246) Range 31 to 0 is null.
+# ** Error: testbench.vhd(199): (vcom-1152) Index value 1 is out of index range 31 to 0 (null array) of work.testbench(sim).reg_array_t.
+# ** Error: testbench.vhd(200): (vcom-1152) Index value 2 is out of index range 31 to 0 (null array) of work.testbench(sim).reg_array_t.
+# ** Error: testbench.vhd(201): (vcom-1152) Index value 3 is out of index range 31 to 0 (null array) of work.testbench(sim).reg_array_t.
+# ** Error: testbench.vhd(202): (vcom-1152) Index value 4 is out of index range 31 to 0 (null array) of work.testbench(sim).reg_array_t.
+# ** Error: testbench.vhd(203): (vcom-1152) Index value 6 is out of index range 31 to 0 (null array) of work.testbench(sim).reg_array_t.
+# ** Error: testbench.vhd(204): (vcom-1152) Index value 7 is out of index range 31 to 0 (null array) of work.testbench(sim).reg_array_t.
+# ** Error: testbench.vhd(205): (vcom-1152) Index value 8 is out of index range 31 to 0 (null array) of work.testbench(sim).reg_array_t.
+# ** Note: testbench.vhd(209): VHDL Compiler exiting
+# End time: 01:12:56 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 7, Warnings: 1
+# C:/intelFPGA/20.1/modelsim_ase/win32aloem/vcom failed.
+source testbench.tcl
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:13:21 on Apr 14,2026
+# vcom -reportprogress 300 -2008 intermediate_reg.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity if_id_reg
+# -- Compiling architecture behavioral of if_id_reg
+# -- Compiling entity id_ex_reg
+# -- Compiling architecture behavioral of id_ex_reg
+# -- Compiling entity ex_mem_reg
+# -- Compiling architecture behavioral of ex_mem_reg
+# -- Compiling entity mem_wb_reg
+# -- Compiling architecture behavioral of mem_wb_reg
+# End time: 01:13:21 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:13:21 on Apr 14,2026
+# vcom -reportprogress 300 -2008 memory.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity memory
+# -- Compiling architecture rtl of memory
+# End time: 01:13:21 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:13:21 on Apr 14,2026
+# vcom -reportprogress 300 -2008 rf.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity rf
+# -- Compiling architecture arch of rf
+# End time: 01:13:21 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:13:21 on Apr 14,2026
+# vcom -reportprogress 300 -2008 alu.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity alu
+# -- Compiling architecture arch of alu
+# End time: 01:13:21 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:13:21 on Apr 14,2026
+# vcom -reportprogress 300 -2008 processor_pip.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity processor_pip
+# -- Compiling architecture arch of processor_pip
+# End time: 01:13:22 on Apr 14,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:13:22 on Apr 14,2026
+# vcom -reportprogress 300 -2008 testbench.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity testbench
+# -- Compiling architecture sim of testbench
+# End time: 01:13:22 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vsim work.testbench 
+# Start time: 01:13:22 on Apr 14,2026
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.numeric_std(body)
+# Loading work.testbench(sim)
+# Loading work.processor_pip(arch)
+# Loading work.memory(rtl)
+# Loading work.rf(arch)
+# Loading work.alu(arch)
+# Loading work.if_id_reg(behavioral)
+# Loading work.id_ex_reg(behavioral)
+# Loading work.ex_mem_reg(behavioral)
+# Loading work.mem_wb_reg(behavioral)
+# ** Warning: (vsim-8523) Cannot reference the signal "/testbench/uut/reg_file/my_rf" before it has been elaborated.
+#    Time: 0 ps  Iteration: 0  Instance: /testbench File: testbench.vhd
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut/my_alu
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut/reg_file
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut/reg_file
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 1  Instance: /testbench/uut/reg_file
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 1  Instance: /testbench/uut/reg_file
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 2  Instance: /testbench/uut/my_alu
+# End time: 01:13:25 on Apr 14,2026, Elapsed time: 0:00:03
+# Errors: 0, Warnings: 9
+source testbench.tcl
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:13:31 on Apr 14,2026
+# vcom -reportprogress 300 -2008 intermediate_reg.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity if_id_reg
+# -- Compiling architecture behavioral of if_id_reg
+# -- Compiling entity id_ex_reg
+# -- Compiling architecture behavioral of id_ex_reg
+# -- Compiling entity ex_mem_reg
+# -- Compiling architecture behavioral of ex_mem_reg
+# -- Compiling entity mem_wb_reg
+# -- Compiling architecture behavioral of mem_wb_reg
+# End time: 01:13:31 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:13:31 on Apr 14,2026
+# vcom -reportprogress 300 -2008 memory.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity memory
+# -- Compiling architecture rtl of memory
+# End time: 01:13:32 on Apr 14,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:13:32 on Apr 14,2026
+# vcom -reportprogress 300 -2008 rf.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity rf
+# -- Compiling architecture arch of rf
+# End time: 01:13:32 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:13:32 on Apr 14,2026
+# vcom -reportprogress 300 -2008 alu.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity alu
+# -- Compiling architecture arch of alu
+# End time: 01:13:32 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:13:32 on Apr 14,2026
+# vcom -reportprogress 300 -2008 processor_pip.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity processor_pip
+# -- Compiling architecture arch of processor_pip
+# End time: 01:13:32 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:13:32 on Apr 14,2026
+# vcom -reportprogress 300 -2008 testbench.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity testbench
+# -- Compiling architecture sim of testbench
+# End time: 01:13:32 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vsim work.testbench 
+# Start time: 01:13:32 on Apr 14,2026
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.numeric_std(body)
+# Loading work.testbench(sim)
+# Loading work.processor_pip(arch)
+# Loading work.memory(rtl)
+# Loading work.rf(arch)
+# Loading work.alu(arch)
+# Loading work.if_id_reg(behavioral)
+# Loading work.id_ex_reg(behavioral)
+# Loading work.ex_mem_reg(behavioral)
+# Loading work.mem_wb_reg(behavioral)
+# ** Warning: (vsim-8523) Cannot reference the signal "/testbench/uut/reg_file/my_rf" before it has been elaborated.
+#    Time: 0 ps  Iteration: 0  Instance: /testbench File: testbench.vhd
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut/my_alu
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut/reg_file
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut/reg_file
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 1  Instance: /testbench/uut/reg_file
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 1  Instance: /testbench/uut/reg_file
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 2  Instance: /testbench/uut/my_alu
+# End time: 01:13:35 on Apr 14,2026, Elapsed time: 0:00:03
+# Errors: 0, Warnings: 9
+source testbench.tcl
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:16:00 on Apr 14,2026
+# vcom -reportprogress 300 -2008 intermediate_reg.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity if_id_reg
+# -- Compiling architecture behavioral of if_id_reg
+# -- Compiling entity id_ex_reg
+# -- Compiling architecture behavioral of id_ex_reg
+# -- Compiling entity ex_mem_reg
+# -- Compiling architecture behavioral of ex_mem_reg
+# -- Compiling entity mem_wb_reg
+# -- Compiling architecture behavioral of mem_wb_reg
+# End time: 01:16:00 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:16:00 on Apr 14,2026
+# vcom -reportprogress 300 -2008 memory.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity memory
+# -- Compiling architecture rtl of memory
+# End time: 01:16:00 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:16:00 on Apr 14,2026
+# vcom -reportprogress 300 -2008 rf.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity rf
+# -- Compiling architecture arch of rf
+# End time: 01:16:00 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:16:00 on Apr 14,2026
+# vcom -reportprogress 300 -2008 alu.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity alu
+# -- Compiling architecture arch of alu
+# End time: 01:16:00 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:16:00 on Apr 14,2026
+# vcom -reportprogress 300 -2008 processor_pip.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity processor_pip
+# -- Compiling architecture arch of processor_pip
+# End time: 01:16:00 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:16:00 on Apr 14,2026
+# vcom -reportprogress 300 -2008 testbench.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity testbench
+# -- Compiling architecture sim of testbench
+# End time: 01:16:00 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vsim work.testbench 
+# Start time: 01:16:00 on Apr 14,2026
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.numeric_std(body)
+# Loading work.testbench(sim)
+# Loading work.processor_pip(arch)
+# Loading work.memory(rtl)
+# Loading work.rf(arch)
+# Loading work.alu(arch)
+# Loading work.if_id_reg(behavioral)
+# Loading work.id_ex_reg(behavioral)
+# Loading work.ex_mem_reg(behavioral)
+# Loading work.mem_wb_reg(behavioral)
+# ** Warning: (vsim-8523) Cannot reference the signal "/testbench/uut/reg_file/my_rf" before it has been elaborated.
+#    Time: 0 ps  Iteration: 0  Instance: /testbench File: testbench.vhd
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut/my_alu
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut/reg_file
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut/reg_file
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 1  Instance: /testbench/uut/reg_file
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 1  Instance: /testbench/uut/reg_file
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 2  Instance: /testbench/uut/my_alu
+# End time: 01:16:04 on Apr 14,2026, Elapsed time: 0:00:04
+# Errors: 0, Warnings: 9
+source testbench.tcl
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:17:25 on Apr 14,2026
+# vcom -reportprogress 300 -2008 intermediate_reg.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity if_id_reg
+# -- Compiling architecture behavioral of if_id_reg
+# -- Compiling entity id_ex_reg
+# -- Compiling architecture behavioral of id_ex_reg
+# -- Compiling entity ex_mem_reg
+# -- Compiling architecture behavioral of ex_mem_reg
+# -- Compiling entity mem_wb_reg
+# -- Compiling architecture behavioral of mem_wb_reg
+# End time: 01:17:25 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:17:25 on Apr 14,2026
+# vcom -reportprogress 300 -2008 memory.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity memory
+# -- Compiling architecture rtl of memory
+# End time: 01:17:25 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:17:25 on Apr 14,2026
+# vcom -reportprogress 300 -2008 rf.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity rf
+# -- Compiling architecture arch of rf
+# End time: 01:17:25 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:17:25 on Apr 14,2026
+# vcom -reportprogress 300 -2008 alu.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity alu
+# -- Compiling architecture arch of alu
+# End time: 01:17:25 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:17:25 on Apr 14,2026
+# vcom -reportprogress 300 -2008 processor_pip.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity processor_pip
+# -- Compiling architecture arch of processor_pip
+# End time: 01:17:25 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:17:25 on Apr 14,2026
+# vcom -reportprogress 300 -2008 testbench.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity testbench
+# -- Compiling architecture sim of testbench
+# End time: 01:17:25 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vsim work.testbench 
+# Start time: 01:17:26 on Apr 14,2026
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.numeric_std(body)
+# Loading work.testbench(sim)
+# Loading work.processor_pip(arch)
+# Loading work.memory(rtl)
+# Loading work.rf(arch)
+# Loading work.alu(arch)
+# Loading work.if_id_reg(behavioral)
+# Loading work.id_ex_reg(behavioral)
+# Loading work.ex_mem_reg(behavioral)
+# Loading work.mem_wb_reg(behavioral)
+# ** Warning: (vsim-8523) Cannot reference the signal "/testbench/uut/reg_file/my_rf" before it has been elaborated.
+#    Time: 0 ps  Iteration: 0  Instance: /testbench File: testbench.vhd
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut/my_alu
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut/reg_file
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut/reg_file
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 1  Instance: /testbench/uut/reg_file
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 1  Instance: /testbench/uut/reg_file
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 2  Instance: /testbench/uut/my_alu
+# End time: 01:17:29 on Apr 14,2026, Elapsed time: 0:00:03
+# Errors: 0, Warnings: 9
+source testbench.tcl
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:18:58 on Apr 14,2026
+# vcom -reportprogress 300 -2008 intermediate_reg.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity if_id_reg
+# -- Compiling architecture behavioral of if_id_reg
+# -- Compiling entity id_ex_reg
+# -- Compiling architecture behavioral of id_ex_reg
+# -- Compiling entity ex_mem_reg
+# -- Compiling architecture behavioral of ex_mem_reg
+# -- Compiling entity mem_wb_reg
+# -- Compiling architecture behavioral of mem_wb_reg
+# End time: 01:18:58 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:18:58 on Apr 14,2026
+# vcom -reportprogress 300 -2008 memory.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity memory
+# -- Compiling architecture rtl of memory
+# End time: 01:18:58 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:18:58 on Apr 14,2026
+# vcom -reportprogress 300 -2008 rf.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity rf
+# -- Compiling architecture arch of rf
+# End time: 01:18:58 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:18:58 on Apr 14,2026
+# vcom -reportprogress 300 -2008 alu.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity alu
+# -- Compiling architecture arch of alu
+# End time: 01:18:58 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:18:58 on Apr 14,2026
+# vcom -reportprogress 300 -2008 processor_pip.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity processor_pip
+# -- Compiling architecture arch of processor_pip
+# End time: 01:18:59 on Apr 14,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:18:59 on Apr 14,2026
+# vcom -reportprogress 300 -2008 testbench.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity testbench
+# -- Compiling architecture sim of testbench
+# End time: 01:18:59 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vsim work.testbench 
+# Start time: 01:18:59 on Apr 14,2026
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.numeric_std(body)
+# Loading work.testbench(sim)
+# Loading work.processor_pip(arch)
+# Loading work.memory(rtl)
+# Loading work.rf(arch)
+# Loading work.alu(arch)
+# Loading work.if_id_reg(behavioral)
+# Loading work.id_ex_reg(behavioral)
+# Loading work.ex_mem_reg(behavioral)
+# Loading work.mem_wb_reg(behavioral)
+# ** Warning: (vsim-8523) Cannot reference the signal "/testbench/uut/reg_file/my_rf" before it has been elaborated.
+#    Time: 0 ps  Iteration: 0  Instance: /testbench File: testbench.vhd
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut/my_alu
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut/reg_file
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut/reg_file
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 1  Instance: /testbench/uut/reg_file
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 1  Instance: /testbench/uut/reg_file
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 2  Instance: /testbench/uut/my_alu
+# ** Warning: Before tick
+#    Time: 5 ns  Iteration: 0  Instance: /testbench
+# End time: 01:19:02 on Apr 14,2026, Elapsed time: 0:00:03
 # Errors: 0, Warnings: 10
+source testbench.tcl
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:21:39 on Apr 14,2026
+# vcom -reportprogress 300 -2008 intermediate_reg.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity if_id_reg
+# -- Compiling architecture behavioral of if_id_reg
+# -- Compiling entity id_ex_reg
+# -- Compiling architecture behavioral of id_ex_reg
+# -- Compiling entity ex_mem_reg
+# -- Compiling architecture behavioral of ex_mem_reg
+# -- Compiling entity mem_wb_reg
+# -- Compiling architecture behavioral of mem_wb_reg
+# End time: 01:21:39 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:21:39 on Apr 14,2026
+# vcom -reportprogress 300 -2008 memory.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity memory
+# -- Compiling architecture rtl of memory
+# End time: 01:21:39 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:21:39 on Apr 14,2026
+# vcom -reportprogress 300 -2008 rf.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity rf
+# -- Compiling architecture arch of rf
+# End time: 01:21:39 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:21:39 on Apr 14,2026
+# vcom -reportprogress 300 -2008 alu.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity alu
+# -- Compiling architecture arch of alu
+# End time: 01:21:39 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:21:39 on Apr 14,2026
+# vcom -reportprogress 300 -2008 processor_pip.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity processor_pip
+# -- Compiling architecture arch of processor_pip
+# End time: 01:21:39 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:21:39 on Apr 14,2026
+# vcom -reportprogress 300 -2008 testbench.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity testbench
+# -- Compiling architecture sim of testbench
+# End time: 01:21:39 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vsim work.testbench 
+# Start time: 01:21:39 on Apr 14,2026
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.numeric_std(body)
+# Loading work.testbench(sim)
+# Loading work.processor_pip(arch)
+# Loading work.memory(rtl)
+# Loading work.rf(arch)
+# Loading work.alu(arch)
+# Loading work.if_id_reg(behavioral)
+# Loading work.id_ex_reg(behavioral)
+# Loading work.ex_mem_reg(behavioral)
+# Loading work.mem_wb_reg(behavioral)
+# ** Warning: (vsim-8523) Cannot reference the signal "/testbench/uut/reg_file/my_rf" before it has been elaborated.
+#    Time: 0 ps  Iteration: 0  Instance: /testbench File: testbench.vhd
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut/my_alu
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut/reg_file
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut/reg_file
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 1  Instance: /testbench/uut/reg_file
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 1  Instance: /testbench/uut/reg_file
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 2  Instance: /testbench/uut/my_alu
+# ** Warning: Before tick
+#    Time: 5 ns  Iteration: 0  Instance: /testbench
+# ** Warning: Reached check section
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Error: [FAIL] x1 expected 5 got 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Error: [FAIL] x2 expected 3 got 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Error: [FAIL] x3 expected 8 got 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Error: [FAIL] x4 expected 2 got 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Error: [FAIL] x6 expected 10 got 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Error: [FAIL] x7 expected 0 got 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Error: [FAIL] x8 expected 42 got 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Note: --- Testbench complete ---
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Fatal: (vsim-3421) Value 32768 for address is out of range 0 to 32767.
+#    Time: 32774 ns  Iteration: 2  Signal: /testbench/uut/pc_word File: processor_pip.vhd Line: 134
+# Fatal error at testbench.vhd line 143
+# 
+# HDL call sequence:
+# Stopped at testbench.vhd 208 Process stim
+# 
+# End time: 01:21:43 on Apr 14,2026, Elapsed time: 0:00:04
+# Errors: 8, Warnings: 18
+source testbench.tcl
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:21:51 on Apr 14,2026
+# vcom -reportprogress 300 -2008 intermediate_reg.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity if_id_reg
+# -- Compiling architecture behavioral of if_id_reg
+# -- Compiling entity id_ex_reg
+# -- Compiling architecture behavioral of id_ex_reg
+# -- Compiling entity ex_mem_reg
+# -- Compiling architecture behavioral of ex_mem_reg
+# -- Compiling entity mem_wb_reg
+# -- Compiling architecture behavioral of mem_wb_reg
+# End time: 01:21:51 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:21:51 on Apr 14,2026
+# vcom -reportprogress 300 -2008 memory.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity memory
+# -- Compiling architecture rtl of memory
+# End time: 01:21:51 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:21:51 on Apr 14,2026
+# vcom -reportprogress 300 -2008 rf.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity rf
+# -- Compiling architecture arch of rf
+# End time: 01:21:52 on Apr 14,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:21:52 on Apr 14,2026
+# vcom -reportprogress 300 -2008 alu.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity alu
+# -- Compiling architecture arch of alu
+# End time: 01:21:52 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:21:52 on Apr 14,2026
+# vcom -reportprogress 300 -2008 processor_pip.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity processor_pip
+# -- Compiling architecture arch of processor_pip
+# End time: 01:21:52 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:21:52 on Apr 14,2026
+# vcom -reportprogress 300 -2008 testbench.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity testbench
+# -- Compiling architecture sim of testbench
+# End time: 01:21:52 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vsim work.testbench 
+# Start time: 01:21:52 on Apr 14,2026
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.numeric_std(body)
+# Loading work.testbench(sim)
+# Loading work.processor_pip(arch)
+# Loading work.memory(rtl)
+# Loading work.rf(arch)
+# Loading work.alu(arch)
+# Loading work.if_id_reg(behavioral)
+# Loading work.id_ex_reg(behavioral)
+# Loading work.ex_mem_reg(behavioral)
+# Loading work.mem_wb_reg(behavioral)
+# ** Warning: (vsim-8523) Cannot reference the signal "/testbench/uut/reg_file/my_rf" before it has been elaborated.
+#    Time: 0 ps  Iteration: 0  Instance: /testbench File: testbench.vhd
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut/my_alu
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut/reg_file
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut/reg_file
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 1  Instance: /testbench/uut/reg_file
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 1  Instance: /testbench/uut/reg_file
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 2  Instance: /testbench/uut/my_alu
+# ** Warning: Before tick
+#    Time: 5 ns  Iteration: 0  Instance: /testbench
+# ** Warning: Reached check section
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Error: [FAIL] x1 expected 5 got 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Error: [FAIL] x2 expected 3 got 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Error: [FAIL] x3 expected 8 got 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Error: [FAIL] x4 expected 2 got 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Error: [FAIL] x6 expected 10 got 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Error: [FAIL] x7 expected 0 got 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Error: [FAIL] x8 expected 42 got 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Note: --- Testbench complete ---
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Fatal: (vsim-3421) Value 32768 for address is out of range 0 to 32767.
+#    Time: 32774 ns  Iteration: 2  Signal: /testbench/uut/pc_word File: processor_pip.vhd Line: 134
+# Fatal error at testbench.vhd line 143
+# 
+# HDL call sequence:
+# Stopped at testbench.vhd 208 Process stim
+# 
+# End time: 01:21:56 on Apr 14,2026, Elapsed time: 0:00:04
+# Errors: 8, Warnings: 18
+show signals /testbench/uut/*
+# ** UI-Msg: (vish-4000) A design must be loaded before the "show" command can be used.
+# 
+source testbench.tcl
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:26:30 on Apr 14,2026
+# vcom -reportprogress 300 -2008 intermediate_reg.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity if_id_reg
+# -- Compiling architecture behavioral of if_id_reg
+# -- Compiling entity id_ex_reg
+# -- Compiling architecture behavioral of id_ex_reg
+# -- Compiling entity ex_mem_reg
+# -- Compiling architecture behavioral of ex_mem_reg
+# -- Compiling entity mem_wb_reg
+# -- Compiling architecture behavioral of mem_wb_reg
+# End time: 01:26:30 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:26:30 on Apr 14,2026
+# vcom -reportprogress 300 -2008 memory.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity memory
+# -- Compiling architecture rtl of memory
+# End time: 01:26:31 on Apr 14,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:26:31 on Apr 14,2026
+# vcom -reportprogress 300 -2008 rf.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity rf
+# -- Compiling architecture arch of rf
+# End time: 01:26:31 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:26:31 on Apr 14,2026
+# vcom -reportprogress 300 -2008 alu.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity alu
+# -- Compiling architecture arch of alu
+# End time: 01:26:31 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:26:31 on Apr 14,2026
+# vcom -reportprogress 300 -2008 processor_pip.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity processor_pip
+# -- Compiling architecture arch of processor_pip
+# End time: 01:26:31 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:26:31 on Apr 14,2026
+# vcom -reportprogress 300 -2008 testbench.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity testbench
+# -- Compiling architecture sim of testbench
+# End time: 01:26:31 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vsim work.testbench 
+# Start time: 01:26:31 on Apr 14,2026
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.numeric_std(body)
+# Loading work.testbench(sim)
+# Loading work.processor_pip(arch)
+# Loading work.memory(rtl)
+# Loading work.rf(arch)
+# Loading work.alu(arch)
+# Loading work.if_id_reg(behavioral)
+# Loading work.id_ex_reg(behavioral)
+# Loading work.ex_mem_reg(behavioral)
+# Loading work.mem_wb_reg(behavioral)
+# ** Warning: (vsim-8523) Cannot reference the signal "/testbench/uut/reg_file/my_rf" before it has been elaborated.
+#    Time: 0 ps  Iteration: 0  Instance: /testbench File: testbench.vhd
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut/my_alu
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut/reg_file
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut/reg_file
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 1  Instance: /testbench/uut/reg_file
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 1  Instance: /testbench/uut/reg_file
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 2  Instance: /testbench/uut/my_alu
+# ** Warning: Before tick
+#    Time: 5 ns  Iteration: 0  Instance: /testbench
+# ** Warning: Reached check section
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Error: [FAIL] x1 expected 5 got 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Error: [FAIL] x2 expected 3 got 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Error: [FAIL] x3 expected 8 got 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Error: [FAIL] x4 expected 2 got 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Error: [FAIL] x6 expected 10 got 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Error: [FAIL] x7 expected 0 got 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Error: [FAIL] x8 expected 42 got 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Note: --- Testbench complete ---
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Fatal: (vsim-3421) Value 32768 for address is out of range 0 to 32767.
+#    Time: 32774 ns  Iteration: 2  Signal: /testbench/uut/pc_word File: processor_pip.vhd Line: 134
+# Fatal error at testbench.vhd line 143
+# 
+# HDL call sequence:
+# Stopped at testbench.vhd 208 Process stim
+# 
+# End time: 01:26:36 on Apr 14,2026, Elapsed time: 0:00:05
+# Errors: 8, Warnings: 18
+source testbench.tcl
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:26:54 on Apr 14,2026
+# vcom -reportprogress 300 -2008 intermediate_reg.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity if_id_reg
+# -- Compiling architecture behavioral of if_id_reg
+# -- Compiling entity id_ex_reg
+# -- Compiling architecture behavioral of id_ex_reg
+# -- Compiling entity ex_mem_reg
+# -- Compiling architecture behavioral of ex_mem_reg
+# -- Compiling entity mem_wb_reg
+# -- Compiling architecture behavioral of mem_wb_reg
+# End time: 01:26:54 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:26:54 on Apr 14,2026
+# vcom -reportprogress 300 -2008 memory.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity memory
+# -- Compiling architecture rtl of memory
+# End time: 01:26:54 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:26:54 on Apr 14,2026
+# vcom -reportprogress 300 -2008 rf.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity rf
+# -- Compiling architecture arch of rf
+# End time: 01:26:54 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:26:54 on Apr 14,2026
+# vcom -reportprogress 300 -2008 alu.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity alu
+# -- Compiling architecture arch of alu
+# End time: 01:26:54 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:26:54 on Apr 14,2026
+# vcom -reportprogress 300 -2008 processor_pip.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity processor_pip
+# -- Compiling architecture arch of processor_pip
+# End time: 01:26:55 on Apr 14,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 01:26:55 on Apr 14,2026
+# vcom -reportprogress 300 -2008 testbench.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity testbench
+# -- Compiling architecture sim of testbench
+# End time: 01:26:55 on Apr 14,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vsim work.testbench 
+# Start time: 01:26:55 on Apr 14,2026
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.numeric_std(body)
+# Loading work.testbench(sim)
+# Loading work.processor_pip(arch)
+# Loading work.memory(rtl)
+# Loading work.rf(arch)
+# Loading work.alu(arch)
+# Loading work.if_id_reg(behavioral)
+# Loading work.id_ex_reg(behavioral)
+# Loading work.ex_mem_reg(behavioral)
+# Loading work.mem_wb_reg(behavioral)
+# ** Warning: (vsim-8523) Cannot reference the signal "/testbench/uut/reg_file/my_rf" before it has been elaborated.
+#    Time: 0 ps  Iteration: 0  Instance: /testbench File: testbench.vhd
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut/my_alu
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut/reg_file
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut/reg_file
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 0  Instance: /testbench/uut
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 1  Instance: /testbench/uut/reg_file
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 1  Instance: /testbench/uut/reg_file
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 0 ps  Iteration: 2  Instance: /testbench/uut/my_alu
+# ** Warning: Before tick
+#    Time: 5 ns  Iteration: 0  Instance: /testbench
+# ** Warning: Reached check section
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Error: [FAIL] x1 expected 5 got 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Error: [FAIL] x2 expected 3 got 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Error: [FAIL] x3 expected 8 got 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Error: [FAIL] x4 expected 2 got 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Error: [FAIL] x6 expected 10 got 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Error: [FAIL] x7 expected 0 got 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Error: [FAIL] x8 expected 42 got 0
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Note: --- Testbench complete ---
+#    Time: 54500 ps  Iteration: 0  Instance: /testbench
+# ** Fatal: (vsim-3421) Value 32768 for address is out of range 0 to 32767.
+#    Time: 32774 ns  Iteration: 2  Signal: /testbench/uut/pc_word File: processor_pip.vhd Line: 134
+# Fatal error at testbench.vhd line 143
+# 
+# HDL call sequence:
+# Stopped at testbench.vhd 208 Process stim
+# 
+# End time: 01:27:08 on Apr 14,2026, Elapsed time: 0:00:13
+# Errors: 8, Warnings: 18

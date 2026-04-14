@@ -188,7 +188,6 @@ begin
         --    through the 5-stage pipeline (14 instr + 4 pipeline stages +
         --    branch/load penalties + margin = 50 cycles is generous)
         -- --------------------------------------------------------------------
-	report "Before tick" severity warning;
         tick(50);
 
         -- --------------------------------------------------------------------

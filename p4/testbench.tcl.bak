@@ -41,7 +41,7 @@ foreach word $program {
     incr i
 }
 
-# Run simulation
+# Run simulation (50 cycles is enough for the 10-instruction program to drain)
 run -all
 
 quit -sim
