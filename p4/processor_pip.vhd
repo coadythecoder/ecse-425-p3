@@ -381,11 +381,6 @@ begin
             mem_write <= '0';
             mem_read <= '0';
             mem_regwrite  <= '0';
-            wb_regwrite <= '0';
-            mux_a <= (others => '0');
-            mux_b <= (others => '0');
-            mux_pc <= (others => '0');
-            mux_write <= (others => '0');
 
             -- =========================
             -- IF stage
@@ -393,15 +388,10 @@ begin
             if_ir_in  <= (others => '0');
             if_pc_in  <= (others => '0');
 
-            if_id_ir  <= (others => '0');
-            if_id_pc  <= (others => '0');
-
             -- =========================
             -- ID stage
             -- =========================
             id_npc_in <= (others => '0');
-            id_a_data <= (others => '0');
-            id_b_data <= (others => '0');
             id_imm    <= (others => '0');
             id_rd     <= (others => '0');
             id_ir     <= (others => '0');
@@ -409,33 +399,15 @@ begin
             id_mux_a_select <= '0';
             id_mux_b_select <= '0';
 
-            id_ex_npc <= (others => '0');
-            id_ex_a   <= (others => '0');
-            id_ex_b   <= (others => '0');
-            id_ex_imm <= (others => '0');
-            id_ex_rd  <= (others => '0');
-            id_ex_ir  <= (others => '0');
-
-            id_ex_mux_a_select <= '0';
-            id_ex_mux_b_select <= '0';
-
             -- =========================
             -- EX stage
             -- =========================
             ex_mux_pc_select <= '0';
-            ex_alu_out       <= (others => '0');
             ex_b             <= (others => '0');
             ex_rd            <= (others => '0');
             ex_ir            <= (others => '0');
             ex_npc           <= (others => '0');
-
-            ex_mem_mux_pc_select <= '0';
-            ex_mem_alu_out       <= (others => '0');
             ex_mem_alu_out_int   <= 0;
-            ex_mem_b             <= (others => '0');
-            ex_mem_rd            <= (others => '0');
-            ex_mem_ir            <= (others => '0');
-            ex_mem_npc           <= (others => '0');
 
             -- =========================
             -- MEM stage
@@ -443,21 +415,10 @@ begin
             mem_regwrite         <= '0';
             mem_mux_write_select <= (others => '0');
             mem_alu_out          <= (others => '0');
-            mem_data_out         <= (others => '0');
             mem_rd               <= (others => '0');
             mem_npc              <= (others => '0');
 
-            -- =========================
-            -- WB stage
-            -- =========================
-            wb_regwrite          <= '0';
-            wb_mux_write_select  <= (others => '0');
-            wb_alu_out           <= (others => '0');
-            wb_mem_data          <= (others => '0');
-            wb_rd                <= (others => '0');
-            wb_npc               <= (others => '0');
-
-        else
+        elsif rising_edge(clock) then
             npc <= pc + 4;
             --if_pc_in <= std_logic_vector(to_unsigned(npc, 32));
             if_pc_in <= mux_pc; --if/id npc input connected to pc mux output
