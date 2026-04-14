@@ -29,70 +29,57 @@ end cache;
 
 architecture arch of cache is
 
-	-- CONSTANTS
-	constant BYTE_SIZE : integer := 8;
-	constant WORD_SIZE : integer := 32;
-	constant BYTES_PER_WORD : integer := WORD_SIZE / BYTE_SIZE;
+	constant BYTES_PER_WORD  : integer := 4;
 	constant WORDS_PER_BLOCK : integer := 4;
-	constant NUM_BLOCKS : integer := 32;
-	constant TAG_SIZE : integer := 6;
-	constant MEM_ADDR_SIZE : integer := 15;
-	-- address (31:0, byte addressable) can be split in the following way using the lower 15 bits
-	-- 1->0 ignored since memory accesses are assumed to be word-addressable (multiple of four bits, so bits 1:0 always 0)
-	-- 4 words per block, so word offset is 2 bits, corresponding to bits to 3->2
-	constant WORD_OFFSET_START : integer := 3;
-	constant WORD_OFFSET_END : integer := 2;
-	-- 32 blocks, so block offset is 5 bits, corresponding to bits 8->4
-	constant BLOCK_OFFSET_START : integer := 8;
-	constant BLOCK_OFFSET_END : integer := 4;
-	-- 14->9 are the remaining bits, and thus the tag size is 6 bits (14-9+1=6)
-	constant TAG_START : integer := MEM_ADDR_SIZE - 1;
-	constant TAG_END : integer := 9;
+	constant NUM_BLOCKS      : integer := 32;
+	constant TAG_SIZE        : integer := 6;
+	constant BLOCK_BYTES     : integer := 16;
 
-	-- TYPES
-	type word_array is array(WORDS_PER_BLOCK-1 downto 0) of std_logic_vector(WORD_SIZE-1 downto 0);
+	-- Address layout (lower 15 bits, bits 1:0 ignored):
+	--   bits  3:2 -> word offset (2 bits, 4 words/block)
+	--   bits  8:4 -> block index (5 bits, 32 blocks)
+	--   bits 14:9 -> tag         (6 bits)
+
+	type word_array  is array(0 to WORDS_PER_BLOCK-1) of std_logic_vector(31 downto 0);
 	type cache_block is record
 		valid : std_logic;
 		dirty : std_logic;
 		tag   : std_logic_vector(TAG_SIZE-1 downto 0);
 		data  : word_array;
 	end record;
-	type cache_array is array(NUM_BLOCKS-1 downto 0) of cache_block;
-	type state_type is (IDLE, CHECK, WRITEBACK, MEM_READ, COMPLETE);
-	
-	-- INTERNAL SIGNALS
-	signal my_cache : cache_array; -- instantiated cache
-	signal state : state_type; -- state variable
-	signal addr_reg : std_logic_vector(MEM_ADDR_SIZE-1 downto 0); -- register to store 15 lower bits of given address
-	signal tag_reg : std_logic_vector(TAG_SIZE-1 downto 0); -- register to store tag portion of address
-	signal block_offset_reg : integer; -- register to store block index of address
-	signal word_offset_reg : integer; -- register to store word offset of address
-	signal write_data_reg : std_logic_vector(31 downto 0); -- register to store data to be written
-	signal is_write_request : boolean; -- write flag
-	signal is_read_request : boolean; -- read flag
-	signal target_block : cache_block; -- to hold the value of the target block
-	signal byte_counter : integer; -- for use in WRITEBACK and MEM_READ
-	signal m_write_reg : std_logic; -- to drive m_write
-	signal m_read_reg : std_logic; -- to drive m_read
+	type cache_array is array(0 to NUM_BLOCKS-1) of cache_block;
+	type state_type  is (IDLE, CHECK, WRITEBACK, MEM_READ, COMPLETE);
+
+	signal my_cache : cache_array;
+	signal state : state_type;
+
+	signal tag_reg : std_logic_vector(TAG_SIZE-1 downto 0);
+	signal block_idx_reg : integer range 0 to NUM_BLOCKS-1;
+	signal word_offset_reg : integer range 0 to WORDS_PER_BLOCK-1;
+	signal write_data_reg : std_logic_vector(31 downto 0);
+	signal is_write : boolean;
+
+	signal wb_base_addr : integer range 0 to ram_size-1;
+
+	signal byte_counter : integer range 0 to 15;
+	signal m_write_reg : std_logic;
+	signal m_read_reg : std_logic;
 
 begin
 
-	-- PROCESSES
 	process(clock, reset)
-		-- VARIABLES
-		variable word_index : integer;
-		variable byte_start_index : integer;
-		variable byte_end_index : integer;
-		variable base_addr : integer;
-		variable temp_word : std_logic_vector(WORD_SIZE-1 downto 0);
-		variable mod_byte_counter : integer;
+		variable word_idx : integer;
+		variable byte_in_w : integer;
+		variable bit_hi : integer;
+		variable bit_lo : integer;
+		variable mem_base : integer;
+		variable temp_word : std_logic_vector(31 downto 0);
 	begin
 		if reset = '1' then
 			s_waitrequest <= '1';
-			
+			s_readdata <= (others => '0');
 			state <= IDLE;
 
-			-- initialize cache
 			for i in 0 to NUM_BLOCKS-1 loop
 				my_cache(i).valid <= '0';
 				my_cache(i).dirty <= '0';
@@ -102,26 +89,13 @@ begin
 				end loop;
 			end loop;
 
-			-- reset other internal signals to 0
-			addr_reg <= (others => '0');
 			tag_reg <= (others => '0');
-			block_offset_reg <= 0;
+			block_idx_reg <= 0;
 			word_offset_reg <= 0;
 			write_data_reg <= (others => '0');
-			is_write_request <= false;
-			is_read_request <= false;
-			
-			target_block.valid <= '0';
-			target_block.dirty <= '0';
-			target_block.tag <= (others => '0');
-			for i in 0 to WORDS_PER_BLOCK-1 loop
-				target_block.data(i) <= (others => '0');
-			end loop;
-
+			is_write <= false;
+			wb_base_addr <= 0;
 			byte_counter <= 0;
-
-			word_index := 0;
-
 			m_write_reg <= '0';
 			m_read_reg <= '0';
 
@@ -129,52 +103,48 @@ begin
 			case state is
 				when IDLE =>
 					s_waitrequest <= '1';
-					if (s_read = '1') or (s_write = '1') then
-						addr_reg <= s_addr(MEM_ADDR_SIZE-1 downto 0);
-						tag_reg <= s_addr(TAG_START downto TAG_END);
-						block_offset_reg <= to_integer(unsigned(s_addr(BLOCK_OFFSET_START downto BLOCK_OFFSET_END)));
-						word_offset_reg <= to_integer(unsigned(s_addr(WORD_OFFSET_START downto WORD_OFFSET_END)));
-						
+					if s_read = '1' or s_write = '1' then
+						tag_reg <= s_addr(14 downto 9);
+						block_idx_reg <= to_integer(unsigned(s_addr(8 downto 4)));
+						word_offset_reg <= to_integer(unsigned(s_addr(3 downto 2)));
+						is_write <= (s_write = '1');
 						if s_write = '1' then
 							write_data_reg <= s_writedata;
-							is_write_request <= true;
-						else
-							is_read_request <= true;
 						end if;
-						
 						state <= CHECK;
 					end if;
 				when CHECK =>
-					target_block <= my_cache(block_offset_reg);
-					if target_block.valid = '1' then
-						if target_block.tag = tag_reg then
-							if is_write_request then
-								target_block.data(word_offset_reg) <= write_data_reg;
-								target_block.dirty <= '1';
-							else -- is read_request
-								s_readdata <= target_block.data(word_offset_reg);
-							end if;
-							s_waitrequest <= '0';
-							state <= COMPLETE;
-						elsif target_block.dirty = '1' then
-							state <= WRITEBACK;
+					if my_cache(block_idx_reg).valid = '1' and my_cache(block_idx_reg).tag = tag_reg then
+						-- HIT
+						if is_write then
+							my_cache(block_idx_reg).data(word_offset_reg) <= write_data_reg;
+							my_cache(block_idx_reg).dirty <= '1';
 						else
-							state <= MEM_READ;
+							s_readdata <= my_cache(block_idx_reg).data(word_offset_reg);
 						end if;
+						s_waitrequest <= '0';
+						state <= COMPLETE;
+
+					elsif my_cache(block_idx_reg).valid = '1' and my_cache(block_idx_reg).dirty = '1' then
+						-- MISS + dirty eviction needed
+						-- Snapshot dirty data and compute its memory address NOW,
+						-- while my_cache is valid. WRITEBACK uses wb_data / wb_base_addr
+						-- so MEM_READ can freely overwrite my_cache(block_idx_reg).
+						wb_base_addr <= (to_integer(unsigned(my_cache(block_idx_reg).tag)) * NUM_BLOCKS + block_idx_reg) * BLOCK_BYTES;
+						state <= WRITEBACK;
 					else
+						-- MISS + clean or invalid
 						state <= MEM_READ;
 					end if;
 				when WRITEBACK =>
 					if m_write_reg = '0' then
-						base_addr := to_integer(unsigned(addr_reg(MEM_ADDR_SIZE-1 downto 2)))*16;
-						word_index := byte_counter / BYTES_PER_WORD;
-						-- endianness does not matter as long as we're being consistent, and thus i am choosing little-endian
-						mod_byte_counter := byte_counter mod BYTES_PER_WORD;
-						byte_start_index := (mod_byte_counter+1)*8 - 1;
-						byte_end_index := (mod_byte_counter)*8;
+						word_idx := byte_counter / BYTES_PER_WORD;
+						byte_in_w := byte_counter mod BYTES_PER_WORD;
+						bit_hi := (byte_in_w+1)*8 - 1;
+						bit_lo := byte_in_w*8;
 
-						m_addr <= base_addr + byte_counter;
-						m_writedata <= target_block.data(word_index)(byte_start_index downto byte_end_index);
+						m_addr <= wb_base_addr + byte_counter;
+						m_writedata <= my_cache(block_idx_reg).data(word_idx)(bit_hi downto bit_lo);
 						m_write_reg <= '1';
 					elsif m_waitrequest = '0' then
 						m_write_reg <= '0';
@@ -187,34 +157,43 @@ begin
 					end if;
 				when MEM_READ =>
 					if m_read_reg = '0' then
-						base_addr := to_integer(unsigned(addr_reg(MEM_ADDR_SIZE-1 downto 2)))*16;
-
-						m_addr <= base_addr + byte_counter;
+						mem_base := (to_integer(unsigned(tag_reg)) * NUM_BLOCKS + block_idx_reg) * BLOCK_BYTES;
+						m_addr <= mem_base + byte_counter;
 						m_read_reg <= '1';
 					elsif m_waitrequest = '0' then
-						word_index := byte_counter / BYTES_PER_WORD;
-						-- endianness does not matter as long as we're being consistent, and thus i am choosing little-endian
-						mod_byte_counter := byte_counter mod BYTES_PER_WORD;
-						byte_start_index := (mod_byte_counter+1)*8 - 1;
-						byte_end_index := (mod_byte_counter)*8;
+						word_idx := byte_counter / BYTES_PER_WORD;
+						byte_in_w := byte_counter mod BYTES_PER_WORD;
+						bit_hi := (byte_in_w+1)*8 - 1;
+						bit_lo := byte_in_w*8;
 
-						temp_word := target_block.data(word_index);
-						temp_word(byte_start_index downto byte_end_index) := m_readdata;
-						target_block.data(word_index) <= temp_word;
+						-- temp_word is a variable: update is immediate this cycle
+						temp_word := my_cache(block_idx_reg).data(word_idx);
+						temp_word(bit_hi downto bit_lo) := m_readdata;
+						my_cache(block_idx_reg).data(word_idx) <= temp_word;
 
 						m_read_reg <= '0';
 						if byte_counter = 15 then
-							target_block.valid <= '1';
-							target_block.dirty <= '0';
-							target_block.tag <= tag_reg;
-							my_cache(block_offset_reg) <= target_block;
-
+							my_cache(block_idx_reg).valid <= '1';
+							my_cache(block_idx_reg).dirty <= '0';
+							my_cache(block_idx_reg).tag <= tag_reg;
 							byte_counter <= 0;
-							if is_read_request then
-								s_readdata <= target_block.data(word_offset_reg);
-							else 
-								my_cache(block_offset_reg).data(word_offset_reg) <= s_writedata;
-								my_cache(block_offset_reg).dirty <= '1';
+
+							if is_write then
+								-- Write-miss: stamp in the written word (wins over loop above)
+								my_cache(block_idx_reg).data(word_offset_reg) <= write_data_reg;
+								my_cache(block_idx_reg).dirty <= '1';
+							else
+								-- Read-miss: drive s_readdata now so testbench sees it
+								-- when waitrequest falls this same cycle.
+								-- temp_word holds the correct value for word_idx (last fetched).
+								-- For other words, read directly from my_cache — those bytes
+								-- were committed in earlier iterations via signal assignment
+								-- and have settled (this is byte_counter=15, those were earlier).
+								if word_idx = word_offset_reg then
+									s_readdata <= temp_word;
+								else
+									s_readdata <= my_cache(block_idx_reg).data(word_offset_reg);
+								end if;
 							end if;
 							state <= COMPLETE;
 							s_waitrequest <= '0';
@@ -222,8 +201,11 @@ begin
 							byte_counter <= byte_counter + 1;
 						end if;
 					end if;
-
 				when COMPLETE =>
+					if not is_write then
+						s_readdata <= my_cache(block_idx_reg).data(word_offset_reg);
+					end if;
+					is_write <= false;
 					s_waitrequest <= '1';
 					state <= IDLE;
 			end case;
