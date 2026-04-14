@@ -2,3 +2,9 @@
 *.ini
 *.wlf
 /p4/work
+*.bak
+.DS_Store
+transcript
+*.stacktrace*
+*.vstf
+*.cr.mti
