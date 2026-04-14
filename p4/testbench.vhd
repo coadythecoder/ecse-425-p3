@@ -118,8 +118,24 @@ architecture sim of testbench is
     -- Adjust paths if your rf.vhd uses a different array name.
 
     type reg_array_t is array (31 downto 0) of std_logic_vector(31 downto 0);
+    type mem is array(32767 downto 0) of std_logic_vector(31 downto 0);
 
     alias regs : reg_array_t is << signal .testbench.uut.reg_file.my_rf : reg_array_t >>;
+    alias rs2_dbg : std_logic_vector(4 downto 0) is
+    << signal .testbench.uut.reg_file.read_addr2 : std_logic_vector(4 downto 0) >>;
+    alias rs1_dbg : std_logic_vector(4 downto 0) is
+    << signal .testbench.uut.reg_file.read_addr1 : std_logic_vector(4 downto 0) >>;
+    alias instrmem_output : std_logic_vector(31 downto 0) is
+    << signal .testbench.uut.instr_mem.readdata : std_logic_vector(31 downto 0) >>;
+
+    alias imem_addr : integer range 0 to 32767 is
+    << signal .testbench.uut.instr_mem.address : integer range 0 to 32767 >>;
+    alias imem_addr_sig : integer range 0 to 32767 is
+    << signal .testbench.uut.instr_mem.read_address_reg : integer range 0 to 32767 >>;
+
+    
+    alias ram_block : mem is
+    << signal .testbench.uut.instr_mem.ram_block : mem >>;
 
 begin
 
@@ -179,9 +195,28 @@ begin
         --     This testbench calls mem load from the companion Tcl script
         --     testbench.tcl which sources this VHDL and pre-loads the RAM.)
         -- --------------------------------------------------------------------
+        report "rs2 = " & to_hstring(rs2_dbg);
+        report "rs1 = " & to_hstring(rs1_dbg);
+        report "instr_mem output = " & to_hstring(instrmem_output);
+        report "addr = " & integer'image(imem_addr);
+        report "addr_sig = " & integer'image(imem_addr_sig);
+        for i in 0 to 9 loop
+            report "IMEM[" & integer'image(i) & "] = " &
+                to_hstring(ram_block(i));
+        end loop;
         rst <= '1';
         wait for 5 * CLK_PERIOD;
         rst <= '0';
+        wait for 5 * CLK_PERIOD;
+        report "rs2 = " & to_hstring(rs2_dbg);
+        report "rs1 = " & to_hstring(rs1_dbg);
+        report "instr_mem output = " & to_hstring(instrmem_output);
+        report "addr = " & integer'image(imem_addr);
+        report "addr_sig = " & integer'image(imem_addr_sig);
+        for i in 0 to 9 loop
+            report "IMEM[" & integer'image(i) & "] = " &
+                to_hstring(ram_block(i));
+        end loop;
 
         -- --------------------------------------------------------------------
         -- 2. Run enough cycles for the 14-instruction program to fully drain

@@ -209,10 +209,12 @@ architecture arch of processor_pip is
     signal wb_rd              : std_logic_vector(4 downto 0);
     signal wb_npc  : std_logic_vector(31 downto 0);
 
+    signal instr_mem_out    :   std_logic_vector(31 downto 0);
+
 begin
     -- Combinatorial conversions
-    alu_out_int <= to_integer(signed(alu_out));
-    data_addr   <= alu_out_int / 4 when alu_out_int >= 0 else 0; -- prevent overflow
+    --alu_out_int <= to_integer(signed(alu_out));
+    --data_addr   <= alu_out_int / 4 when alu_out_int >= 0 else 0; -- prevent overflow
     pc_word     <= pc / 4;
 
     -- Muxes combinatorial
@@ -247,7 +249,7 @@ begin
             address => pc_word,
             memwrite => '0',
             memread => '0',
-            readdata => if_ir_in, --instruction go straight to if/id ir input
+            readdata => instr_mem_out, --instruction go straight to if/id ir input
             waitrequest => open
         );
 
@@ -380,13 +382,86 @@ begin
             mem_read <= '0';
             mem_regwrite  <= '0';
             wb_regwrite <= '0';
-            ex_mux_pc_select <= '1';
+            mux_a <= (others => '0');
+            mux_b <= (others => '0');
+            mux_pc <= (others => '0');
+            mux_write <= (others => '0');
+
+            -- =========================
+            -- IF stage
+            -- =========================
+            if_ir_in  <= (others => '0');
+            if_pc_in  <= (others => '0');
+
+            if_id_ir  <= (others => '0');
+            if_id_pc  <= (others => '0');
+
+            -- =========================
+            -- ID stage
+            -- =========================
+            id_npc_in <= (others => '0');
+            id_a_data <= (others => '0');
+            id_b_data <= (others => '0');
+            id_imm    <= (others => '0');
+            id_rd     <= (others => '0');
+            id_ir     <= (others => '0');
+
+            id_mux_a_select <= '0';
+            id_mux_b_select <= '0';
+
+            id_ex_npc <= (others => '0');
+            id_ex_a   <= (others => '0');
+            id_ex_b   <= (others => '0');
+            id_ex_imm <= (others => '0');
+            id_ex_rd  <= (others => '0');
+            id_ex_ir  <= (others => '0');
+
+            id_ex_mux_a_select <= '0';
+            id_ex_mux_b_select <= '0';
+
+            -- =========================
+            -- EX stage
+            -- =========================
+            ex_mux_pc_select <= '0';
+            ex_alu_out       <= (others => '0');
+            ex_b             <= (others => '0');
+            ex_rd            <= (others => '0');
+            ex_ir            <= (others => '0');
+            ex_npc           <= (others => '0');
+
+            ex_mem_mux_pc_select <= '0';
+            ex_mem_alu_out       <= (others => '0');
+            ex_mem_alu_out_int   <= 0;
+            ex_mem_b             <= (others => '0');
+            ex_mem_rd            <= (others => '0');
+            ex_mem_ir            <= (others => '0');
+            ex_mem_npc           <= (others => '0');
+
+            -- =========================
+            -- MEM stage
+            -- =========================
+            mem_regwrite         <= '0';
+            mem_mux_write_select <= (others => '0');
+            mem_alu_out          <= (others => '0');
+            mem_data_out         <= (others => '0');
+            mem_rd               <= (others => '0');
+            mem_npc              <= (others => '0');
+
+            -- =========================
+            -- WB stage
+            -- =========================
+            wb_regwrite          <= '0';
+            wb_mux_write_select  <= (others => '0');
+            wb_alu_out           <= (others => '0');
+            wb_mem_data          <= (others => '0');
+            wb_rd                <= (others => '0');
+            wb_npc               <= (others => '0');
 
         else
-            reg_write <= '0';
             npc <= pc + 4;
             --if_pc_in <= std_logic_vector(to_unsigned(npc, 32));
             if_pc_in <= mux_pc; --if/id npc input connected to pc mux output
+            pc <= to_integer(unsigned(mux_pc));
 
             id_npc_in <= if_id_pc; --if/id output npc and id/ex input npc connected
             ex_npc <= id_ex_npc; --id/ex npc output connected to ex/mem npc input
@@ -401,7 +476,7 @@ begin
 
             ex_mem_alu_out_int <= to_integer(unsigned(ex_mem_alu_out)); --logic to convert 32b addr to int for data mem input
 
-        
+            if_ir_in <= instr_mem_out;
             
 
             opcode_id  := if_id_ir(6 downto 0);
@@ -546,7 +621,6 @@ begin
 
 
             
-            pc <= to_integer(unsigned(mux_pc)); --pc value is connected to the leftmost mux
         end if;
     end process;
     

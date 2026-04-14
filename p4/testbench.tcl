@@ -41,7 +41,17 @@ foreach word $program {
     incr i
 }
 
+add wave -r /testbench/uut/instr_mem/*
+add wave -r /testbench/uut/pc
+add wave -r /testbench/uut/npc
+add wave -r /testbench/uut/mux_pc
+add wave -r /testbench/uut/ex_mem_mux_pc_select
+add wave -r /testbench/uut/id_ex_a
+add wave -r /testbench/uut/id_ex_b
+add wave -r /testbench/uut/id_ex_ir
+add wave -r /testbench/uut/if_ir_in
+add wave -r /testbench/uut/if_id_pc
 # Run simulation
 run -all
 
-quit -sim
+#quit -sim
