@@ -8,3 +8,4 @@ transcript
 *.stacktrace*
 *.vstf
 *.cr.mti
+p4/transcript
