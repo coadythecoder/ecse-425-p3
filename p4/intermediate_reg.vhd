@@ -57,7 +57,7 @@ entity id_ex_reg is
         rd_out	: out  std_logic_vector(11 downto 7);
         ir_out  : out std_logic_vector(31 downto 0);
         mux_a_select_out   : out  std_logic;
-        mux_b_select_out   : out  std_logic;
+        mux_b_select_out   : out  std_logic
     );
 end id_ex_reg;
 
