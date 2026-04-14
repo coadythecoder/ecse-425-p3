@@ -97,11 +97,13 @@ architecture arch of processor_pip is
             b_in	: in  std_logic_vector(31 downto 0);
             rd_in	: in  std_logic_vector(4 downto 0);
             ir_in   : in  std_logic_vector(31 downto 0);
+            npc_in	: in  std_logic_vector(31 downto 0);
             mux_pc_select_out	: out  std_logic;
             aluout_out	: out  std_logic_vector(31 downto 0);
             b_out	: out  std_logic_vector(31 downto 0);
             rd_out	: out  std_logic_vector(4 downto 0);
-            ir_out   : out  std_logic_vector(31 downto 0)
+            ir_out   : out  std_logic_vector(31 downto 0);
+            npc_out	: out  std_logic_vector(31 downto 0)
         );
     end component;
 
@@ -115,11 +117,13 @@ architecture arch of processor_pip is
             aluout_in	: in  std_logic_vector(31 downto 0);
             mem_ldr_result_in	: in  std_logic_vector(31 downto 0);
             rd_in	: in  std_logic_vector(4 downto 0);
+            npc_in	: in  std_logic_vector(31 downto 0);
             regwrite_out	: out  std_logic;
             mux_write_select_out	: out  std_logic_vector(1 downto 0);
             aluout_out	: out  std_logic_vector(31 downto 0);
             mem_ldr_result_out	: out  std_logic_vector(31 downto 0);
-            rd_out	: out  std_logic_vector(4 downto 0)
+            rd_out	: out  std_logic_vector(4 downto 0);
+            npc_out	: out  std_logic_vector(31 downto 0)
         );
     end component;
 
@@ -183,23 +187,27 @@ architecture arch of processor_pip is
     signal ex_b       : std_logic_vector(31 downto 0);
     signal ex_rd      : std_logic_vector(4 downto 0);
     signal ex_ir      : std_logic_vector(31 downto 0);
+    signal ex_npc      : std_logic_vector(31 downto 0);
     signal ex_mem_mux_pc_select : std_logic;
     signal ex_mem_alu_out       : std_logic_vector(31 downto 0);
-    signal ex_mem_alu_out_int : integer range 0 to 32767; --memory takes int as address input
+    signal ex_mem_alu_out_int : integer := 0; --memory takes int as address input
     signal ex_mem_b             : std_logic_vector(31 downto 0);
     signal ex_mem_rd            : std_logic_vector(4 downto 0);
     signal ex_mem_ir            : std_logic_vector(31 downto 0);
+    signal ex_mem_npc            : std_logic_vector(31 downto 0);
 
     signal mem_regwrite        : std_logic;
     signal mem_mux_write_select : std_logic_vector(1 downto 0);
     signal mem_alu_out   : std_logic_vector(31 downto 0);
     signal mem_data_out  : std_logic_vector(31 downto 0);
     signal mem_rd        : std_logic_vector(4 downto 0);
+    signal mem_npc  : std_logic_vector(31 downto 0);
     signal wb_regwrite        : std_logic;
     signal wb_mux_write_select : std_logic_vector(1 downto 0);
     signal wb_alu_out         : std_logic_vector(31 downto 0);
     signal wb_mem_data        : std_logic_vector(31 downto 0);
     signal wb_rd              : std_logic_vector(4 downto 0);
+    signal wb_npc  : std_logic_vector(31 downto 0);
 
 begin
     -- Combinatorial conversions
@@ -217,7 +225,7 @@ begin
     -- mux_write: 0 => alu_out, 1 => lmd (loaded value), 2 => npc (JAL return addr)
     mux_write <= wb_alu_out when wb_mux_write_select = "00"
             else wb_mem_data    when wb_mux_write_select = "01"
-            else id_ex_npc; --this line is for jal where pc+4 is written, is it correct?
+            else wb_npc; --for jumping
 
     -- Data memory (byte-addressed in RISC-V; word-indexed here via data_addr = alu_out/4)
     data_mem : memory port map(
@@ -324,12 +332,14 @@ begin
         b_in             => ex_b,
         rd_in            => ex_rd,
         ir_in            => ex_ir,
+        npc_in            => ex_npc,
 
         mux_pc_select_out => ex_mem_mux_pc_select,
         aluout_out        => ex_mem_alu_out,
         b_out             => ex_mem_b,
         rd_out            => ex_mem_rd,
-        ir_out            => ex_mem_ir
+        ir_out            => ex_mem_ir,
+        npc_out            => ex_mem_npc
     );
 
     --------------------------------------------------------------------
@@ -346,12 +356,14 @@ begin
         aluout_in          => mem_alu_out,
         mem_ldr_result_in  => mem_data_out,
         rd_in              => mem_rd,
+        npc_in              => mem_npc,
 
         regwrite_out        => wb_regwrite,
         mux_write_select_out=> wb_mux_write_select,
         aluout_out          => wb_alu_out,
         mem_ldr_result_out  => wb_mem_data,
-        rd_out              => wb_rd
+        rd_out              => wb_rd,
+        npc_out              => wb_npc
     );
 
     cpu_process: process(clock, reset)
@@ -377,6 +389,8 @@ begin
             if_pc_in <= mux_pc; --if/id npc input connected to pc mux output
 
             id_npc_in <= if_id_pc; --if/id output npc and id/ex input npc connected
+            ex_npc <= id_ex_npc; --id/ex npc output connected to ex/mem npc input
+            mem_npc <= ex_mem_npc; --mem/wb npc input connected to ex/mem npc output
             id_ir <= if_id_ir; --ir passed directly from if/id output to id/ex input
             ex_ir <= id_ex_ir; --ir passed directly from id/ex output to ex/mem input
             ex_rd <= id_ex_rd; --id/ex output rd same as ex/mem input rd

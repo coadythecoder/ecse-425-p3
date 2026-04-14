@@ -122,11 +122,13 @@ entity ex_mem_reg is
         b_in	: in  std_logic_vector(31 downto 0);
         rd_in	: in  std_logic_vector(4 downto 0);
         ir_in   : in  std_logic_vector(31 downto 0);
+        npc_in	: in  std_logic_vector(31 downto 0);
         mux_pc_select_out	: out  std_logic;
         aluout_out	: out  std_logic_vector(31 downto 0);
         b_out	: out  std_logic_vector(31 downto 0);
         rd_out	: out  std_logic_vector(4 downto 0);
-        ir_out   : out  std_logic_vector(31 downto 0)
+        ir_out   : out  std_logic_vector(31 downto 0);
+        npc_out	: out  std_logic_vector(31 downto 0)
     );
 end ex_mem_reg;
 
@@ -136,6 +138,7 @@ architecture behavioral of ex_mem_reg is
     signal b_reg	: std_logic_vector(31 downto 0);
     signal rd_reg	: std_logic_vector(4 downto 0);
     signal ir_reg   : std_logic_vector(31 downto 0);
+    signal npc_reg	: std_logic_vector(31 downto 0);
 begin
 
     process(clk, reset)
@@ -146,6 +149,7 @@ begin
             b_reg <= (others => '0');
             rd_reg <= (others => '0');
             ir_reg <= (others => '0');
+            npc_reg	<= (others => '0');
 
         elsif rising_edge(clk) then
             if enable = '1' then
@@ -154,6 +158,7 @@ begin
                 b_reg	<= b_in;
                 rd_reg	<= rd_in;
                 ir_reg  <=  ir_in;
+                npc_reg	<= npc_in;
             end if;
         end if;
     end process;
@@ -163,6 +168,7 @@ begin
     b_out   <=  b_reg;
     rd_out  <=  rd_reg;
     ir_out  <=  ir_reg;
+    npc_out <=  npc_reg;
 end behavioral;
 
 
@@ -178,11 +184,13 @@ entity mem_wb_reg is
         aluout_in	: in  std_logic_vector(31 downto 0);
         mem_ldr_result_in	: in  std_logic_vector(31 downto 0);
         rd_in	: in  std_logic_vector(4 downto 0);
+        npc_in	: in  std_logic_vector(31 downto 0);
         regwrite_out	: out  std_logic;
         mux_write_select_out	: out  std_logic_vector(1 downto 0);
         aluout_out	: out  std_logic_vector(31 downto 0);
         mem_ldr_result_out	: out  std_logic_vector(31 downto 0);
-        rd_out	: out  std_logic_vector(4 downto 0)
+        rd_out	: out  std_logic_vector(4 downto 0);
+        npc_out	: out  std_logic_vector(31 downto 0)
 
     );
 end mem_wb_reg;
@@ -193,6 +201,7 @@ architecture behavioral of mem_wb_reg is
     signal aluout_reg	: std_logic_vector(31 downto 0);
     signal mem_ldr_result_reg	: std_logic_vector(31 downto 0);
     signal rd_reg	: std_logic_vector(4 downto 0);
+    signal npc_reg	: std_logic_vector(31 downto 0);
 begin
 
     process(clk, reset)
@@ -203,6 +212,7 @@ begin
             aluout_reg	<= (others => '0');
             mem_ldr_result_reg	<= (others => '0');
             rd_reg	<= (others => '0');
+            npc_reg	<= (others => '0');
 
         elsif rising_edge(clk) then
             if enable = '1' then
@@ -211,6 +221,7 @@ begin
                 aluout_reg	<= aluout_in;
                 rd_reg	<= rd_in;
                 mem_ldr_result_reg  <=  mem_ldr_result_in;
+                npc_reg	<= npc_in;
             end if;
         end if;
     end process;
@@ -220,6 +231,7 @@ begin
     aluout_out   <=  aluout_reg;
     rd_out  <=  rd_reg;
     mem_ldr_result_out  <=  mem_ldr_result_reg;
+    npc_out <=  npc_reg;
 end behavioral;
 
 
