@@ -32,8 +32,8 @@ begin
         funct7 := "0" & instruction(31 downto 25);
         op2_unsigned := unsigned(op2);
         shift_amount := to_integer(op2_unsigned(4 downto 0));
-        result <= (others => '1');
-        case opcode is 
+        result <= (others => '0');
+        case opcode is
             when "0110011" =>
                 case funct3 is
                     when x"0" =>
@@ -58,7 +58,7 @@ begin
                             result <= std_logic_vector(shift_right(rs1, shift_amount));
                         end if;
                     when others =>
-                        result <= (others => '1'); -- all 1's to be very obvious when this case happens
+                        result <= (others => '0');
                 end case;
             when "0010011" =>
                 case funct3 is
@@ -77,7 +77,7 @@ begin
                             result <= std_logic_vector(to_unsigned(0, 32));
                         end if;
                     when others =>
-                        result <= (others => '1'); -- all 1's to be very obvious when this case happens
+                        result <= (others => '0');
                 end case;
             when "0000011" => -- load word
                 result <= std_logic_vector(rs1 + rs2); -- rs1 + imm for addressing memory
@@ -96,7 +96,7 @@ begin
             when "0010111" => -- add upper imm to pc: rd = PC + imm
                 result <= std_logic_vector(rs1 + rs2);
             when others =>
-                result <= (others => '1');  -- all 1's to be very evident when this case happens
+                result <= (others => '0');
         end case;
     end process;
 end arch;
