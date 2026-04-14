@@ -1,8 +1,0 @@
-# vsim -c -do "run -all; quit -f" processor_tb 
-# Start time: 01:31:37 on Apr 12,2026
-# ** Error: (vsim-3170) Could not find 'processor_tb'.
-#         Searched libraries:
-#             C:/Users/Youssef/Documents/McGill/ECSE425/P3/ecse-425-p3/work
-# Error loading design
-# End time: 01:31:38 on Apr 12,2026, Elapsed time: 0:00:01
-# Errors: 1, Warnings: 0
