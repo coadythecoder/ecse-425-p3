@@ -9,3 +9,5 @@ transcript
 *.vstf
 *.cr.mti
 p4/transcript
+**/__pycache__/
+/p3/work
