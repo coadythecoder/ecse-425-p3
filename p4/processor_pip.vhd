@@ -170,6 +170,8 @@ architecture arch of processor_pip is
     signal id_b_data  : std_logic_vector(31 downto 0);
     signal id_a_in    : std_logic_vector(31 downto 0);
     signal id_b_in    : std_logic_vector(31 downto 0);
+    signal id_a_byp   : std_logic_vector(31 downto 0);
+    signal id_b_byp   : std_logic_vector(31 downto 0);
     signal id_imm     : std_logic_vector(31 downto 0);
     signal id_rd      : std_logic_vector(4 downto 0);
     signal id_ir      : std_logic_vector(31 downto 0);
@@ -197,6 +199,8 @@ architecture arch of processor_pip is
     signal ex_mem_rd            : std_logic_vector(4 downto 0);
     signal ex_mem_ir            : std_logic_vector(31 downto 0);
     signal ex_mem_npc            : std_logic_vector(31 downto 0);
+    signal ex_stage_mux_pc_select : std_logic;
+    signal ex_stage_alu_out      : std_logic_vector(31 downto 0);
     signal ex_stage_b_in         : std_logic_vector(31 downto 0);
     signal ex_stage_rd_in        : std_logic_vector(4 downto 0);
     signal ex_stage_ir_in        : std_logic_vector(31 downto 0);
@@ -215,33 +219,99 @@ architecture arch of processor_pip is
     signal wb_rd              : std_logic_vector(4 downto 0);
     signal wb_npc  : std_logic_vector(31 downto 0);
 
-    signal ex_mem_is_load   : std_logic;
+    signal instr_mem_out    :   std_logic_vector(31 downto 0);
+    signal if_id_enable     : std_logic;
+    signal load_use_hazard  : std_logic;
+    signal flush_id         : std_logic;
+    signal id_uses_rs1      : std_logic;
+    signal id_uses_rs2      : std_logic;
+    signal id_is_branch     : std_logic;
+    signal id_ex_writes_rd  : std_logic;
     signal ex_mem_writes_rd : std_logic;
+    signal ex_mem_is_load   : std_logic;
+    signal squash_ex_branch : std_logic;
     signal fwd_rs1          : std_logic_vector(31 downto 0);
     signal fwd_rs2          : std_logic_vector(31 downto 0);
-    signal flush_id         : std_logic;
-    signal pc_base_ex       : std_logic_vector(31 downto 0);
 
 begin
     -- Combinatorial conversions
     --alu_out_int <= to_integer(signed(alu_out));
     --data_addr   <= alu_out_int / 4 when alu_out_int >= 0 else 0; -- prevent overflow
-    -- Clamp PC to valid instruction memory range [0, 32767]
-    pc_word     <= pc / 4 when (pc / 4) < 32768 else 32767;
+    pc_word     <= pc / 4;
 
-    -- Data forwarding: Forward ALU results from EX/MEM stage if the destination register matches
     ex_mem_is_load <= '1' when ex_mem_ir(6 downto 0) = "0000011" else '0';
     ex_mem_writes_rd <= '1' when ex_mem_rd /= "00000" and (
-        ex_mem_ir(6 downto 0) = "0110011" or  -- R-type
-        ex_mem_ir(6 downto 0) = "0010011" or  -- I-type ALU
-        ex_mem_ir(6 downto 0) = "0000011" or  -- load
-        ex_mem_ir(6 downto 0) = "0110111" or  -- LUI
-        ex_mem_ir(6 downto 0) = "0010111" or  -- AUIPC
-        ex_mem_ir(6 downto 0) = "1101111" or  -- JAL
-        ex_mem_ir(6 downto 0) = "1100111"    -- JALR
+        ex_mem_ir(6 downto 0) = "0110011" or
+        ex_mem_ir(6 downto 0) = "0010011" or
+        ex_mem_ir(6 downto 0) = "0000011" or
+        ex_mem_ir(6 downto 0) = "0110111" or
+        ex_mem_ir(6 downto 0) = "0010111" or
+        ex_mem_ir(6 downto 0) = "1101111" or
+        ex_mem_ir(6 downto 0) = "1100111"
     ) else '0';
 
-    -- Forward from EX/MEM stage (for instructions not in load phase) or WB stage
+    id_ex_writes_rd <= '1' when id_ex_rd /= "00000" and (
+        id_ex_ir(6 downto 0) = "0110011" or
+        id_ex_ir(6 downto 0) = "0010011" or
+        id_ex_ir(6 downto 0) = "0000011" or
+        id_ex_ir(6 downto 0) = "0110111" or
+        id_ex_ir(6 downto 0) = "0010111" or
+        id_ex_ir(6 downto 0) = "1101111" or
+        id_ex_ir(6 downto 0) = "1100111"
+    ) else '0';
+
+    id_uses_rs1 <= '1' when
+        if_id_ir(6 downto 0) = "0110011" or -- R-type
+        if_id_ir(6 downto 0) = "0010011" or -- I-type ALU
+        if_id_ir(6 downto 0) = "0000011" or -- load
+        if_id_ir(6 downto 0) = "0100011" or -- store
+        if_id_ir(6 downto 0) = "1100011" or -- branch
+        if_id_ir(6 downto 0) = "1100111"    -- JALR
+        else '0';
+
+    id_uses_rs2 <= '1' when
+        if_id_ir(6 downto 0) = "0110011" or -- R-type
+        if_id_ir(6 downto 0) = "0100011" or -- store
+        if_id_ir(6 downto 0) = "1100011"    -- branch
+        else '0';
+
+    id_is_branch <= '1' when if_id_ir(6 downto 0) = "1100011" else '0';
+
+    load_use_hazard <= '1' when (
+        (id_ex_ir(6 downto 0) = "0000011" and id_ex_rd /= "00000" and (
+            (id_uses_rs1 = '1' and id_ex_rd = if_id_ir(19 downto 15)) or
+            (id_uses_rs2 = '1' and id_ex_rd = if_id_ir(24 downto 20))
+        )) or
+        (ex_mem_ir(6 downto 0) = "0000011" and ex_mem_rd /= "00000" and (
+            (id_uses_rs1 = '1' and ex_mem_rd = if_id_ir(19 downto 15)) or
+            (id_uses_rs2 = '1' and ex_mem_rd = if_id_ir(24 downto 20))
+        )) or
+        (wb_regwrite = '1' and wb_mux_write_select = "01" and wb_rd /= "00000" and (
+            (id_uses_rs1 = '1' and wb_rd = if_id_ir(19 downto 15)) or
+            (id_uses_rs2 = '1' and wb_rd = if_id_ir(24 downto 20))
+        )) or
+        (id_is_branch = '1' and (
+            (id_ex_writes_rd = '1' and ((id_ex_rd = if_id_ir(19 downto 15)) or (id_ex_rd = if_id_ir(24 downto 20)))) or
+            (ex_mem_writes_rd = '1' and ((ex_mem_rd = if_id_ir(19 downto 15)) or (ex_mem_rd = if_id_ir(24 downto 20)))) or
+            (wb_regwrite = '1' and wb_rd /= "00000" and ((wb_rd = if_id_ir(19 downto 15)) or (wb_rd = if_id_ir(24 downto 20))))
+        ))
+    ) else '0';
+    flush_id <= '1' when ex_mem_mux_pc_select = '0' and (
+        ex_mem_ir(6 downto 0) = "1100011" or
+        ex_mem_ir(6 downto 0) = "1101111" or
+        ex_mem_ir(6 downto 0) = "1100111"
+    ) else '0';
+    if_id_enable <= '0' when load_use_hazard = '1' and flush_id = '0' else '1';
+
+    squash_ex_branch <= '1' when flush_id = '1' and ex_mem_ir(6 downto 0) = "1100011" else '0';
+
+    ex_stage_mux_pc_select <= '1' when squash_ex_branch = '1' else ex_mux_pc_select;
+    ex_stage_alu_out <= (others => '0') when squash_ex_branch = '1' else ex_alu_out;
+    ex_stage_b_in <= (others => '0') when squash_ex_branch = '1' else fwd_rs2;
+    ex_stage_rd_in <= (others => '0') when squash_ex_branch = '1' else id_ex_rd;
+    ex_stage_ir_in <= (others => '0') when squash_ex_branch = '1' else id_ex_ir;
+    ex_stage_npc_in <= (others => '0') when squash_ex_branch = '1' else id_ex_npc;
+
     fwd_rs1 <= ex_mem_alu_out when ex_mem_writes_rd = '1' and ex_mem_is_load = '0' and ex_mem_rd = id_ex_ir(19 downto 15)
         else mux_write when wb_regwrite = '1' and wb_rd /= "00000" and wb_rd = id_ex_ir(19 downto 15)
         else id_ex_a;
@@ -250,19 +320,19 @@ begin
         else mux_write when wb_regwrite = '1' and wb_rd /= "00000" and wb_rd = id_ex_ir(24 downto 20)
         else id_ex_b;
 
-    -- MEM stage controls must be combinational with EX/MEM opcode.
+    id_a_byp <= ex_mem_alu_out when ex_mem_writes_rd = '1' and ex_mem_is_load = '0' and ex_mem_rd = if_id_ir(19 downto 15)
+        else mux_write when wb_regwrite = '1' and wb_rd /= "00000" and wb_rd = if_id_ir(19 downto 15)
+        else id_a_data;
+    id_b_byp <= ex_mem_alu_out when ex_mem_writes_rd = '1' and ex_mem_is_load = '0' and ex_mem_rd = if_id_ir(24 downto 20)
+        else mux_write when wb_regwrite = '1' and wb_rd /= "00000" and wb_rd = if_id_ir(24 downto 20)
+        else id_b_data;
+
     mem_read <= '1' when ex_mem_ir(6 downto 0) = "0000011" else '0';
     mem_write <= '1' when ex_mem_ir(6 downto 0) = "0100011" else '0';
     mem_regwrite <= '0' when ex_mem_ir(6 downto 0) = "0100011" or ex_mem_ir(6 downto 0) = "1100011" else '1';
     mem_mux_write_select <= "01" when ex_mem_ir(6 downto 0) = "0000011"
         else "10" when ex_mem_ir(6 downto 0) = "1101111" or ex_mem_ir(6 downto 0) = "1100111"
         else "00";
-
-    flush_id <= '1' when ex_mux_pc_select = '0' and (
-        id_ex_ir(6 downto 0) = "1100011" or
-        id_ex_ir(6 downto 0) = "1101111" or
-        id_ex_ir(6 downto 0) = "1100111"
-    ) else '0';
 
     ex_control_process: process(id_ex_ir, fwd_rs1, fwd_rs2)
         variable funct3_ex : std_logic_vector(2 downto 0);
@@ -304,22 +374,28 @@ begin
         end if;
     end process;
 
-    -- When a branch/jump redirect is asserted, squash the stale younger EX instruction.
-    ex_stage_b_in   <= (others => '0') when flush_id = '1' else fwd_rs2;
-    ex_stage_rd_in  <= (others => '0') when flush_id = '1' else id_ex_rd;
-    ex_stage_ir_in  <= (others => '0') when flush_id = '1' else id_ex_ir;
-    ex_stage_npc_in <= (others => '0') when flush_id = '1' else id_ex_npc;
+    addr_calc: process(ex_mem_alu_out)
+        variable addr_word_v : integer;
+    begin
+        if signed(ex_mem_alu_out) < 0 then
+            ex_mem_alu_out_int <= 0;
+        else
+            addr_word_v := to_integer(unsigned(ex_mem_alu_out(31 downto 2)));
+            if addr_word_v > 32767 then
+                ex_mem_alu_out_int <= 32767;
+            else
+                ex_mem_alu_out_int <= addr_word_v;
+            end if;
+        end if;
+    end process;
 
     -- Muxes combinatorial
-    -- For PC-relative ops, use current PC (= npc-4), not npc.
-    pc_base_ex <= std_logic_vector(unsigned(id_ex_npc) - 4);
-    -- mux_a: '0' => rs1 register (with forwarding), '1' => current PC (for branch/JAL targets)
-    mux_a <= fwd_rs1 when id_ex_mux_a_select = '0' else pc_base_ex;
-    -- mux_b: '0' => immediate, '1' => rs2 register (with forwarding)
+    -- mux_a: '0' => rs1 register, '1' => current PC (for branch/JAL targets)
+    mux_a <= fwd_rs1 when id_ex_mux_a_select = '0' else id_ex_npc;
+    -- mux_b: '0' => immediate, '1' => rs2 register
     mux_b <= id_ex_imm when id_ex_mux_b_select = '0' else fwd_rs2;
-    -- mux_pc: '0' => alu_out (branch/jump target from EX), '1' => npc (fall-through)
-    -- Use direct pc+4 instead of npc to avoid stale values
-    mux_pc <= ex_alu_out when ex_mux_pc_select = '0' else std_logic_vector(to_unsigned(pc + 4, 32));
+    -- mux_pc: '0' => alu_out (branch/jump target), '1' => npc (fall-through)
+    mux_pc <= ex_mem_alu_out when ex_mem_mux_pc_select = '0' else std_logic_vector(to_unsigned(pc + 4, 32));
     -- mux_write: 0 => alu_out, 1 => lmd (loaded value), 2 => npc (JAL return addr)
     mux_write <= wb_alu_out when wb_mux_write_select = "00"
             else wb_mem_data    when wb_mux_write_select = "01"
@@ -345,7 +421,7 @@ begin
             address => pc_word,
             memwrite => '0',
             memread => '0',
-            readdata => ir, --instruction go straight to if/id ir input
+            readdata => instr_mem_out, --instruction go straight to if/id ir input
             waitrequest => open
         );
 
@@ -353,9 +429,7 @@ begin
     reg_file : rf port map(
         clk => clock,
         reset => reset,
-        -- Read addresses come from the instruction currently in IF/ID (if_id_ir), not the delayed id_ir
-        -- This ensures we read operands for the instruction in the current ID stage
-        read_addr1 => if_id_ir(19 downto 15),
+        read_addr1 => if_id_ir(19 downto 15), --read inputs both come from if/id IR output
         read_addr2 => if_id_ir(24 downto 20),
         write_addr => wb_rd, --rd output of mem/wb connects to reg file write address
         write_data => mux_write,
@@ -379,7 +453,7 @@ begin
     port map (
         clk    => clock,
         reset  => reset,
-        enable => '1',
+        enable => if_id_enable,
 
         ir_in  => if_ir_in,
         pc_in  => if_pc_in,
@@ -427,12 +501,12 @@ begin
         reset  => reset,
         enable => '1',
 
-        mux_pc_select_in => ex_mux_pc_select,
-        aluout_in        => ex_alu_out,
+        mux_pc_select_in => ex_stage_mux_pc_select,
+        aluout_in        => ex_stage_alu_out,
         b_in             => ex_stage_b_in,
         rd_in            => ex_stage_rd_in,
         ir_in            => ex_stage_ir_in,
-        npc_in           => ex_stage_npc_in,
+        npc_in            => ex_stage_npc_in,
 
         mux_pc_select_out => ex_mem_mux_pc_select,
         aluout_out        => ex_mem_alu_out,
@@ -456,7 +530,7 @@ begin
         aluout_in          => ex_mem_alu_out,
         mem_ldr_result_in  => mem_data_out,
         rd_in              => ex_mem_rd,
-        npc_in             => ex_mem_npc,
+        npc_in              => ex_mem_npc,
 
         regwrite_out        => wb_regwrite,
         mux_write_select_out=> wb_mux_write_select,
@@ -468,10 +542,8 @@ begin
 
     cpu_process: process(clock, reset)
         variable opcode_id : std_logic_vector(6 downto 0);
-        variable opcode_mem : std_logic_vector(6 downto 0);
         variable imm_raw : std_logic_vector(31 downto 0);
         variable rd : std_logic_vector(6 downto 0);
-        variable addr_word : integer;
     begin
         if reset = '1' then
             pc <= 0;
@@ -502,7 +574,6 @@ begin
             ex_rd            <= (others => '0');
             ex_ir            <= (others => '0');
             ex_npc           <= (others => '0');
-            ex_mem_alu_out_int   <= 0;
 
             -- =========================
             -- MEM stage
@@ -514,53 +585,35 @@ begin
         elsif rising_edge(clock) then
             npc <= pc + 4;
             if_pc_in <= std_logic_vector(to_unsigned(pc + 4, 32));
-            pc <= to_integer(unsigned(mux_pc));
-
-            id_npc_in <= if_id_pc; --if/id output npc and id/ex input npc connected
-            ex_npc <= id_ex_npc; --id/ex npc output connected to ex/mem npc input
-            mem_npc <= ex_mem_npc; --mem/wb npc input connected to ex/mem npc output
-            ex_ir <= id_ex_ir; --ir passed directly from id/ex output to ex/mem input
-            ex_rd <= id_ex_rd; --id/ex output rd same as ex/mem input rd
-            mem_rd <= ex_mem_rd; --ex/mem output rd same as mem/wb input rd
-
-            ex_b <= id_ex_b; --id/ex B output same as ex/mem b input
-            mem_alu_out <= ex_mem_alu_out; --ex/mem aluout same as mem/wb alu value input
-
-            -- Address bounds checking to prevent out-of-range errors
-            -- Extract word address from byte address and clamp to valid range [0, 32767]
-            if signed(ex_mem_alu_out) < 0 then
-                ex_mem_alu_out_int <= 0;
-            else
-                addr_word := to_integer(unsigned(ex_mem_alu_out(31 downto 2)));
-                if addr_word > 32767 then
-                    ex_mem_alu_out_int <= 32767;
-                else
-                    ex_mem_alu_out_int <= addr_word;
-                end if;
-            end if;
-
-            if_ir_in <= ir;
+            if_ir_in <= instr_mem_out;
             if flush_id = '1' then
                 if_ir_in <= (others => '0');
             end if;
 
+            if load_use_hazard = '1' and flush_id = '0' then
+                pc <= pc;
+            else
+                pc <= to_integer(unsigned(mux_pc));
+            end if;
+
+            id_npc_in <= if_id_pc; --if/id output npc and id/ex input npc connected
+            
+
+            opcode_id  := if_id_ir(6 downto 0);
+            imm_raw := (others => '0');
             id_mux_a_select <= '0';
             id_mux_b_select <= '0';
-            imm_raw := (others => '0');
 
-            if flush_id = '1' then
-                -- Squash the wrong-path instruction already sitting in IF/ID.
-                id_ir   <= (others => '0');
+            if load_use_hazard = '1' or flush_id = '1' then
+                id_ir <= (others => '0');
                 id_a_in <= (others => '0');
                 id_b_in <= (others => '0');
-                id_imm  <= (others => '0');
-                id_rd   <= (others => '0');
+                id_imm <= (others => '0');
+                id_rd <= (others => '0');
             else
-                id_ir   <= if_id_ir;
-                id_a_in <= id_a_data;
-                id_b_in <= id_b_data;
-
-                opcode_id  := if_id_ir(6 downto 0);
+                id_ir <= if_id_ir; --ir passed directly from if/id output to id/ex input
+                id_a_in <= id_a_byp;
+                id_b_in <= id_b_byp;
 
                 case opcode_id is
                     when "0110011" => -- R-type
@@ -618,18 +671,16 @@ begin
                         id_mux_b_select <= '0'; -- op2 = imm
 
                     when others =>
+                        -- do nothing, should hopefully never get to this case
                         null;
                 end case;
 
                 id_imm <= imm_raw;
-                id_rd <= if_id_ir(11 downto 7); --extract rd from if_id_ir
+                id_rd <= if_id_ir(11 downto 7); --extract rd and set id/ex rd input
             end if;
                 
-            opcode_mem  := ex_mem_ir(6 downto 0);
 
 
-
-            
         end if;
     end process;
     

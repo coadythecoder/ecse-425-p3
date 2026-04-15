@@ -144,7 +144,8 @@ begin
     process(clk, reset)
     begin
         if reset = '1' then
-            mux_pc_select_reg <= '0';
+            -- Default to sequential PC path right after reset.
+            mux_pc_select_reg <= '1';
             aluout_reg <= (others => '0');
             b_reg <= (others => '0');
             rd_reg <= (others => '0');

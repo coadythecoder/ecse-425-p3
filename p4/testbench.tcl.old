@@ -1,0 +1,57 @@
+# =============================================================================
+# testbench.tcl  --  Compile, inject program, run testbench.vhd
+# =============================================================================
+
+vlib work
+vmap work work
+
+# Compile all sources
+vcom -2008 intermediate_reg.vhd
+vcom -2008 memory.vhd
+vcom -2008 rf.vhd
+vcom -2008 alu.vhd
+vcom -2008 processor_pip.vhd
+vcom -2008 testbench.vhd
+
+#vsim -t 1ps -novopt work.testbench
+vsim work.testbench
+
+# -----------------------------------------------------------------------
+# Load the test program directly into instruction memory
+# Each line is a 32-bit binary instruction word
+# -----------------------------------------------------------------------
+set imem_path "/testbench/uut/instr_mem/ram_block"
+
+set program {
+    00000000010100000000000010010011
+    00000000001100000000000100010011
+    00000000001000001000000110110011
+    01000000001000001000001000110011
+    00000000101000000000001010010011
+    00000000010100000010000000100011
+    00000000000000000010001100000011
+    00000000000100001000010001100011
+    00000110001100000000001110010011
+    00000010101000000000010000010011
+}
+
+set i 0
+foreach word $program {
+    force -deposit "$imem_path\($i\)" 2#$word 0
+    incr i
+}
+
+add wave -r /testbench/uut/instr_mem/*
+add wave -r /testbench/uut/pc
+add wave -r /testbench/uut/npc
+add wave -r /testbench/uut/mux_pc
+add wave -r /testbench/uut/ex_mem_mux_pc_select
+add wave -r /testbench/uut/id_ex_a
+add wave -r /testbench/uut/id_ex_b
+add wave -r /testbench/uut/id_ex_ir
+add wave -r /testbench/uut/if_ir_in
+add wave -r /testbench/uut/if_id_pc
+# Run long enough for the checks in testbench.vhd to execute.
+run 100ns
+
+quit -f

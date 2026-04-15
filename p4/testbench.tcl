@@ -1,5 +1,8 @@
 # =============================================================================
-# testbench.tcl  --  Compile, inject program, run testbench.vhd
+# testbench.tcl  --  Compile, inject program
+# Loads machine code from program.txt into instruction memory
+# Runs processor_pip for 10,000 cycles at 1 GHz
+# Writes memory.txt (8192 words) and register_file.txt (32 regs)
 # =============================================================================
 
 vlib work
@@ -11,47 +14,68 @@ vcom -2008 memory.vhd
 vcom -2008 rf.vhd
 vcom -2008 alu.vhd
 vcom -2008 processor_pip.vhd
-vcom -2008 testbench.vhd
 
-#vsim -t 1ps -novopt work.testbench
-vsim work.testbench
+vsim work.processor_pip
 
-# -----------------------------------------------------------------------
-# Load the test program directly into instruction memory
-# Each line is a 32-bit binary instruction word
-# -----------------------------------------------------------------------
-set imem_path "/testbench/uut/instr_mem/ram_block"
+set imem_path "/processor_pip/instr_mem/ram_block"
+set dmem_path "/processor_pip/data_mem/ram_block"
+set rf_path   "/processor_pip/reg_file/my_rf"
 
-set program {
-    00000000010100000000000010010011
-    00000000001100000000000100010011
-    00000000001000001000000110110011
-    01000000001000001000001000110011
-    00000000101000000000001010010011
-    00000000010100000010000000100011
-    00000000000000000010001100000011
-    00000000000100001000010001100011
-    00000110001100000000001110010011
-    00000010101000000000010000010011
+set program_file "program.txt"
+if {![file exists $program_file]} {
+    echo "ERROR: $program_file not found"
+    quit -code 1 -f
 }
 
-set i 0
-foreach word $program {
-    force -deposit "$imem_path\($i\)" 2#$word 0
-    incr i
+set fp [open $program_file r]
+set idx 0
+while {[gets $fp line] >= 0} {
+    set line [string trim $line]
+    if {$line eq ""} {
+        continue
+    }
+    if {[regexp {^#} $line]} {
+        continue
+    }
+
+    if {[regexp {^[01]{32}$} $line]} {
+        force -deposit "$imem_path\($idx\)" 2#$line 0
+        incr idx
+    } elseif {[regexp {^[0-9A-Fa-f]{8}$} $line]} {
+        force -deposit "$imem_path\($idx\)" 16#$line 0
+        incr idx
+    } else {
+        echo "WARNING: skipping malformed program line: $line"
+    }
+
+    if {$idx > 1024} {
+        echo "ERROR: program exceeds 1024 instructions"
+        close $fp
+        quit -code 1 -f
+    }
 }
+close $fp
 
-add wave -r /testbench/uut/instr_mem/*
-add wave -r /testbench/uut/pc
-add wave -r /testbench/uut/npc
-add wave -r /testbench/uut/mux_pc
-add wave -r /testbench/uut/ex_mem_mux_pc_select
-add wave -r /testbench/uut/id_ex_a
-add wave -r /testbench/uut/id_ex_b
-add wave -r /testbench/uut/id_ex_ir
-add wave -r /testbench/uut/if_ir_in
-add wave -r /testbench/uut/if_id_pc
-# Run simulation
-run -all
+# 1 GHz clock (1 ns period), reset, then run 10,000 cycles.
+force /processor_pip/clock 0 0ns, 1 0.5ns -repeat 1ns
+force /processor_pip/reset 1 0ns
+run 2ns
+force /processor_pip/reset 0 0ns
+run 10000ns
 
-#quit -sim
+set rf_out [open "register_file.txt" w]
+for {set i 0} {$i < 32} {incr i} {
+    set val [string trim [examine -radix binary "$rf_path\($i\)"]]
+    puts $rf_out $val
+}
+close $rf_out
+
+# As specified: 32768-byte memory => 8192 words
+set mem_out [open "memory.txt" w]
+for {set i 0} {$i < 8192} {incr i} {
+    set val [string trim [examine -radix binary "$dmem_path\($i\)"]]
+    puts $mem_out $val
+}
+close $mem_out
+
+quit -f
