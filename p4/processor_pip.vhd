@@ -215,7 +215,8 @@ begin
     -- Combinatorial conversions
     --alu_out_int <= to_integer(signed(alu_out));
     --data_addr   <= alu_out_int / 4 when alu_out_int >= 0 else 0; -- prevent overflow
-    pc_word     <= pc / 4;
+    -- Clamp PC to valid instruction memory range [0, 32767]
+    pc_word     <= pc / 4 when (pc / 4) < 32768 else 32767;
 
     -- Muxes combinatorial
     -- mux_a: '0' => rs1 register, '1' => current PC (for branch/JAL targets)
@@ -257,7 +258,9 @@ begin
     reg_file : rf port map(
         clk => clock,
         reset => reset,
-        read_addr1 => if_id_ir(19 downto 15), --read inputs both come from if/id IR output
+        -- Read addresses come from the instruction currently in IF/ID (if_id_ir), not the delayed id_ir
+        -- This ensures we read operands for the instruction in the current ID stage
+        read_addr1 => if_id_ir(19 downto 15),
         read_addr2 => if_id_ir(24 downto 20),
         write_addr => wb_rd, --rd output of mem/wb connects to reg file write address
         write_data => mux_write,
@@ -304,7 +307,7 @@ begin
         b_in          => id_b_data,
         immval_in     => id_imm,
         rd_in         => id_rd,
-        ir_in         => id_ir,
+        ir_in         => if_id_ir,  -- Use if_id_ir (current instruction), not id_ir
 
         mux_a_select_in => id_mux_a_select,
         mux_b_select_in => id_mux_b_select,
@@ -375,6 +378,7 @@ begin
         variable funct3 : std_logic_vector(3 downto 0);
         variable imm_raw : std_logic_vector(31 downto 0);
         variable rd : std_logic_vector(6 downto 0);
+        variable addr_word : integer;
     begin
         if reset = '1' then
             pc <= 0;
@@ -402,7 +406,8 @@ begin
             -- =========================
             -- EX stage
             -- =========================
-            ex_mux_pc_select <= '0';
+            -- On reset, select sequential PC (npc) instead of branch/jump target.
+            ex_mux_pc_select <= '1';
             ex_b             <= (others => '0');
             ex_rd            <= (others => '0');
             ex_ir            <= (others => '0');
@@ -435,12 +440,23 @@ begin
             ex_b <= id_ex_b; --id/ex B output same as ex/mem b input
             mem_alu_out <= ex_mem_alu_out; --ex/mem aluout same as mem/wb alu value input
 
-            ex_mem_alu_out_int <= to_integer(unsigned(ex_mem_alu_out)); --logic to convert 32b addr to int for data mem input
+            -- Address bounds checking to prevent out-of-range errors
+            -- Extract word address from byte address and clamp to valid range [0, 32767]
+            if signed(ex_mem_alu_out) < 0 then
+                ex_mem_alu_out_int <= 0;
+            else
+                addr_word := to_integer(unsigned(ex_mem_alu_out(31 downto 2)));
+                if addr_word > 32767 then
+                    ex_mem_alu_out_int <= 32767;
+                else
+                    ex_mem_alu_out_int <= addr_word;
+                end if;
+            end if;
 
             if_ir_in <= instr_mem_out;
             
 
-            opcode_id  := if_id_ir(6 downto 0);
+            opcode_id  := if_id_ir(6 downto 0);  -- Use if_id_ir, the current instruction in ID stage
             imm_raw := (others => '0');
 
             case opcode_id is
@@ -504,7 +520,7 @@ begin
             end case;
 
             id_imm <= imm_raw;
-            id_rd <= if_id_ir(11 downto 7); --extract rd and set id/ex rd input
+            id_rd <= if_id_ir(11 downto 7); --extract rd from if_id_ir
                 
 
 
@@ -562,6 +578,9 @@ begin
 
 
             opcode_mem  := ex_mem_ir(6 downto 0);
+            mem_read <= '0';    -- Default: no memory read
+            mem_write <= '0';   -- Default: no memory write
+            
             if opcode_mem = "0000011" then -- lw
                 mem_read <= '1';
                 mem_mux_write_select <= "01"; -- write-back value loaded from memory
