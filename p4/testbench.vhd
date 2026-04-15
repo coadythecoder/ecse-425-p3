@@ -1,10 +1,4 @@
--- =============================================================================
--- testbench.vhd  --  Basic functional test for processor_pip
--- =============================================================================
--- Program loaded directly into instruction memory (no program.txt).
---
--- Test sequence (each instruction encoded as a 32-bit RISC-V word):
---
+-- Test sequence 
 --  [0]  addi x1, x0, 5        -- x1 = 5
 --  [1]  addi x2, x0, 3        -- x2 = 3
 --  [2]  add  x3, x1, x2       -- x3 = 8
@@ -24,7 +18,6 @@
 --   x6  = 10   (load from data memory)
 --   x7  = 0    (branch skipped the addi)
 --   x8  = 42   (branch was taken)
--- =============================================================================
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -35,9 +28,7 @@ end testbench;
 
 architecture sim of testbench is
 
-    -- -------------------------------------------------------------------------
     -- DUT
-    -- -------------------------------------------------------------------------
     component processor_pip is
         port(
             clock : in std_logic;
@@ -50,9 +41,7 @@ architecture sim of testbench is
 
     constant CLK_PERIOD : time := 1 ns;   -- 1 GHz
 
-    -- -------------------------------------------------------------------------
-    -- Instruction encodings  (hand-assembled RISC-V RV32I)
-    -- -------------------------------------------------------------------------
+    -- Instruction encodings
     --  addi rd, rs1, imm  =>  imm[11:0] | rs1 | 000 | rd | 0010011
     --  add  rd, rs1, rs2  =>  0000000 | rs2 | rs1 | 000 | rd | 0110011
     --  sub  rd, rs1, rs2  =>  0100000 | rs2 | rs1 | 000 | rd | 0110011
@@ -93,9 +82,7 @@ architecture sim of testbench is
     -- addi x8, x0, 42
     constant ADDI_X8_42  : std_logic_vector(31 downto 0) := x"02A00413";
 
-    -- -------------------------------------------------------------------------
-    -- Program array (14 instructions)
-    -- -------------------------------------------------------------------------
+    -- Program array
     type prog_t is array (0 to 9) of std_logic_vector(31 downto 0);
     constant PROGRAM : prog_t := (
         ADDI_X1_5,    -- [0]
@@ -110,37 +97,20 @@ architecture sim of testbench is
         ADDI_X8_42   -- [9]
     );
 
-    -- -------------------------------------------------------------------------
-    -- Aliases into DUT internals (ModelSim allows reading internal signals)
-    -- -------------------------------------------------------------------------
-    -- These use signal aliasing; in ModelSim you can also just use
-    -- <</testbench/uut/reg_file/registers(N)>> extended names.
-    -- Adjust paths if your rf.vhd uses a different array name.
-
+    -- Aliases into DUT internals
     type reg_array_t is array (31 downto 0) of std_logic_vector(31 downto 0);
     alias regs : reg_array_t is << signal .testbench.uut.reg_file.my_rf : reg_array_t >>;
 
 begin
-
-    -- -------------------------------------------------------------------------
-    -- Instantiate DUT
-    -- -------------------------------------------------------------------------
     uut : processor_pip
         port map(
             clock => clk,
             reset => rst
         );
 
-    -- -------------------------------------------------------------------------
-    -- Clock
-    -- -------------------------------------------------------------------------
     clk <= not clk after CLK_PERIOD / 2;
 
-    -- -------------------------------------------------------------------------
-    -- Stimulus
-    -- -------------------------------------------------------------------------
     stim : process
-        -- Convenience: wait N rising edges
         procedure tick(n : positive := 1) is
         begin
             for i in 1 to n loop
@@ -148,7 +118,7 @@ begin
             end loop;
         end procedure;
 
-        -- Simple assertion helper
+        --Assertion helper
         procedure check(
             signal_name : string;
             got         : std_logic_vector(31 downto 0);
@@ -169,34 +139,17 @@ begin
         end procedure;
 
     begin
-        -- --------------------------------------------------------------------
         -- 1. Hold reset, load program into instruction memory
-        --    The memory component's internal RAM is pre-loaded here using
-        --    ModelSim signal-force before time advances.
-        --    (In VHDL simulation the initial content of the RAM must be set
-        --     via the memory component's init file or by the Tcl layer.
-        --     This testbench calls mem load from the companion Tcl script
-        --     testbench.tcl which sources this VHDL and pre-loads the RAM.)
-        -- --------------------------------------------------------------------
         rst <= '1';
         wait for 5 * CLK_PERIOD;
         rst <= '0';
         wait for 5 * CLK_PERIOD;
 
-        -- --------------------------------------------------------------------
-        -- 2. Run enough cycles for the 14-instruction program to fully drain
-        --    through the 5-stage pipeline (14 instr + 4 pipeline stages +
-        --    branch/load penalties + margin = 50 cycles is generous)
-        -- --------------------------------------------------------------------
+        -- 2. Run enough cycles for the program to fully drain through thepipeline
 	report "Before tick" severity warning;
         tick(50);
 
-        -- --------------------------------------------------------------------
         -- 3. Check register file
-        --    Access via ModelSim external name syntax:
-        --      << signal /testbench/uut/reg_file/registers(N) : std_logic_vector >>
-        --    If your rf.vhd uses a different internal name, update accordingly.
-        -- --------------------------------------------------------------------
 	report "Reached check section" severity warning;
 	check("x1", regs(1), 5);
 	check("x2", regs(2), 3);

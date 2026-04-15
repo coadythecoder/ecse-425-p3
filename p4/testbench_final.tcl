@@ -1,10 +1,3 @@
-# =============================================================================
-# testbench.tcl  --  Compile, inject program
-# Loads machine code from program.txt into instruction memory
-# Runs processor_pip for 10,000 cycles at 1 GHz
-# Writes memory.txt (8192 words) and register_file.txt (32 regs)
-# =============================================================================
-
 vlib work
 vmap work work
 
@@ -70,7 +63,6 @@ for {set i 0} {$i < 32} {incr i} {
 }
 close $rf_out
 
-# As specified: 32768-byte memory => 8192 words
 set mem_out [open "memory.txt" w]
 for {set i 0} {$i < 8192} {incr i} {
     set val [string trim [examine -radix binary "$dmem_path\($i\)"]]

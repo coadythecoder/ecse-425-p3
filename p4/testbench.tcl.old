@@ -1,6 +1,3 @@
-# =============================================================================
-# testbench.tcl  --  Compile, inject program, run testbench.vhd
-# =============================================================================
 
 vlib work
 vmap work work
@@ -16,10 +13,6 @@ vcom -2008 testbench.vhd
 #vsim -t 1ps -novopt work.testbench
 vsim work.testbench
 
-# -----------------------------------------------------------------------
-# Load the test program directly into instruction memory
-# Each line is a 32-bit binary instruction word
-# -----------------------------------------------------------------------
 set imem_path "/testbench/uut/instr_mem/ram_block"
 
 set program {
@@ -51,7 +44,7 @@ add wave -r /testbench/uut/id_ex_b
 add wave -r /testbench/uut/id_ex_ir
 add wave -r /testbench/uut/if_ir_in
 add wave -r /testbench/uut/if_id_pc
-# Run long enough for the checks in testbench.vhd to execute.
+
 run 100ns
 
 quit -f
